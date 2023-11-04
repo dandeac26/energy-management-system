@@ -1,9 +1,0 @@
-version: '3'
-
-services:
-
-  react:
-    image: fe-image
-    build: .
-    ports:
-       - "80:80"

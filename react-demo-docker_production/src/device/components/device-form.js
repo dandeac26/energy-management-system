@@ -1,0 +1,193 @@
+import React, { useState, useEffect } from "react";
+import { Col, Row } from "reactstrap";
+import { FormGroup, Input, Label } from "reactstrap";
+import Button from "react-bootstrap/Button";
+
+import Validate from "./validators/device-validators";
+import * as API_USERS from "../api/device-api";
+import APIResponseErrorMessage from "../../commons/errorhandling/api-response-error-message";
+
+const formControlsInit = {
+  description: {
+    value: "",
+    placeholder: "Device description...",
+    valid: false,
+    touched: false,
+    validationRules: {
+      minLength: 3,
+      isRequired: true,
+    },
+  },
+  userId: {
+    value: "",
+    placeholder: "userId...",
+    valid: false,
+    touched: false,
+    validationRules: {
+      isRequired: true,
+    },
+  },
+  hourlyMaxConsumption: {
+    value: "",
+    placeholder: "hourlyMaxConsumption...",
+    valid: false,
+    touched: false,
+  },
+  address: {
+    value: "",
+    placeholder: "Cluj, Zorilor, Str. Lalelelor 21...",
+    valid: false,
+    touched: false,
+  },
+};
+
+function DeviceForm(props) {
+  const [error, setError] = useState({ status: 0, errorMessage: null });
+  const [formIsValid, setFormIsValid] = useState(false);
+  const [formControls, setFormControls] = useState(formControlsInit);
+
+  function handleChange(event) {
+    let name = event.target.name;
+    let value = event.target.value;
+
+    let updatedControls = { ...formControls };
+
+    let updatedFormElement = updatedControls[name];
+
+    updatedFormElement.value = value;
+    updatedFormElement.touched = true;
+    updatedFormElement.valid = Validate(
+      value,
+      updatedFormElement.validationRules
+    );
+    updatedControls[name] = updatedFormElement;
+
+    let formIsValid = true;
+    for (let updatedFormElementName in updatedControls) {
+      formIsValid =
+        updatedControls[updatedFormElementName].valid && formIsValid;
+    }
+
+    setFormControls((formControls) => updatedControls);
+    setFormIsValid((formIsValidPrev) => formIsValid);
+  }
+
+  function registerDevice(device) {
+    return API_USERS.postDevice(device, (result, status, err) => {
+      if (result !== null && (status === 200 || status === 201)) {
+        console.log("Successfully inserted device with id: " + result);
+        props.reloadHandler();
+      } else {
+        setError((error) => ({ status: status, errorMessage: err }));
+      }
+    });
+  }
+
+  function handleSubmit() {
+    let device = {
+      description: formControls.description.value,
+      userId: formControls.userId.value,
+      hourlyMaxConsumption: formControls.hourlyMaxConsumption.value,
+      address: formControls.address.value,
+    };
+    registerDevice(device);
+  }
+
+  return (
+    <div>
+      <FormGroup id="description">
+        <Label for="descriptionField"> Description: </Label>
+        <Input
+          name="description"
+          id="descriptionField"
+          placeholder={formControls.description.placeholder}
+          onChange={handleChange}
+          defaultValue={formControls.description.value}
+          touched={formControls.description.touched ? 1 : 0}
+          valid={formControls.description.valid}
+          required
+        />
+        {formControls.description.touched &&
+          !formControls.description.valid && (
+            <div className={"error-message row"}>
+              {" "}
+              * description must have at least 3 characters{" "}
+            </div>
+          )}
+      </FormGroup>
+
+      <FormGroup id="userId">
+        <Label for="userIdField"> UserId: </Label>
+        <Input
+          name="userId"
+          id="userIdField"
+          placeholder={formControls.userId.placeholder}
+          onChange={handleChange}
+          defaultValue={formControls.userId.value}
+          touched={formControls.userId.touched ? 1 : 0}
+          valid={formControls.userId.valid}
+          required
+        />
+        {formControls.userId.touched && !formControls.userId.valid && (
+          <div className={"error-message"}>
+            {" "}
+            * userId must have a valid format
+          </div>
+        )}
+      </FormGroup>
+
+      <FormGroup id="address">
+        <Label for="addressField"> Address: </Label>
+        <Input
+          name="address"
+          id="addressField"
+          placeholder={formControls.address.placeholder}
+          onChange={handleChange}
+          defaultValue={formControls.address.value}
+          touched={formControls.address.touched ? 1 : 0}
+          valid={formControls.address.valid}
+          required
+        />
+      </FormGroup>
+
+      <FormGroup id="hourlyMaxConsumption">
+        <Label for="hourlyMaxConsumptionField"> Age: </Label>
+        <Input
+          name="hourlyMaxConsumption"
+          id="hourlyMaxConsumptionField"
+          placeholder={formControls.hourlyMaxConsumption.placeholder}
+          min={0}
+          max={100}
+          type="number"
+          onChange={handleChange}
+          defaultValue={formControls.hourlyMaxConsumption.value}
+          touched={formControls.hourlyMaxConsumption.touched ? 1 : 0}
+          valid={formControls.hourlyMaxConsumption.valid}
+          required
+        />
+      </FormGroup>
+
+      <Row>
+        <Col sm={{ size: "4", offset: 8 }}>
+          <Button
+            type={"submit"}
+            disabled={!formIsValid}
+            onClick={handleSubmit}
+          >
+            {" "}
+            Submit{" "}
+          </Button>
+        </Col>
+      </Row>
+
+      {error.status > 0 && (
+        <APIResponseErrorMessage
+          errorStatus={error.status}
+          error={error.errorMessage}
+        />
+      )}
+    </div>
+  );
+}
+
+export default DeviceForm;
