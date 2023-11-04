@@ -46,6 +46,33 @@ function PersonForm(props) {
   const [formIsValid, setFormIsValid] = useState(false);
   const [formControls, setFormControls] = useState(formControlsInit);
 
+  useEffect(() => {
+    if (props.isUpdating) {
+      // Populate the form fields with the updated data
+      setFormControls({
+        name: {
+          ...formControls.name,
+          value: props.updatedData.name,
+        },
+        email: {
+          ...formControls.email,
+          value: props.updatedData.email,
+        },
+        age: {
+          ...formControls.age,
+          value: props.updatedData.age,
+        },
+        address: {
+          ...formControls.address,
+          value: props.updatedData.address,
+        },
+      });
+    } else {
+      // Reset the form fields to their initial state when not in update mode
+      setFormControls(formControlsInit);
+    }
+  }, [props.isUpdating, props.updatedData]);
+
   function handleChange(event) {
     let name = event.target.name;
     let value = event.target.value;
