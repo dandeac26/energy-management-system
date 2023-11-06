@@ -31,7 +31,7 @@ function NavigationBar() {
             </DropdownToggle>
             <DropdownMenu right>
               <DropdownItem>
-                <NavLink href="/person">Persons</NavLink>
+                <NavLink href="/user">Users</NavLink>
                 <NavLink href="/device">Devices</NavLink>
               </DropdownItem>
             </DropdownMenu>

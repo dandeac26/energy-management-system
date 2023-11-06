@@ -16,7 +16,7 @@ FROM openjdk:17-jdk-slim-buster
 #ENV DB_PORT=5432
 #ENV DB_USER=postgres
 #ENV DB_PASSWORD=root
-#ENV DB_DBNAME=city_db
+#ENV DB_DBNAME=user_db
 #
 
 COPY --from=builder /root/dependencies/ ./

@@ -1,21 +1,21 @@
 version: '3'
 
 services:
-  postgres-db3:
+  postgres-db:
     image: postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
         # POSTGRES_ROOT_PASSWORD: "root"
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: city_db
+      POSTGRES_DB: user_db
     ports:
       - "5434:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 #    networks:
 #      demo_net:
-  spring-demo:
+  users-service:
     build:
       context: ./
       dockerfile: ./Dockerfile
@@ -23,12 +23,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db3:5432/city_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/user_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
     depends_on:
-      - postgres-db3
+      - postgres-db
 #    networks:
 #      demo_net:
 #        ipv4_address: 172.30.0.2

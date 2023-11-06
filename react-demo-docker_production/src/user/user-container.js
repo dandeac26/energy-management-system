@@ -11,11 +11,11 @@ import {
 } from "reactstrap";
 
 import APIResponseErrorMessage from "../commons/errorhandling/api-response-error-message";
-import PersonForm from "./components/person-form";
-import * as API_USERS from "./api/person-api";
-import PersonTable from "./components/person-table";
+import UserForm from "./components/user-form";
+import * as API_USERS from "./api/user-api";
+import UserTable from "./components/user-table";
 
-function PersonContainer(props) {
+function UserContainer(props) {
   const [isSelected, setIsSelected] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -31,11 +31,11 @@ function PersonContainer(props) {
 
   // componentDidMount
   useEffect(() => {
-    fetchPersons();
+    fetchUsers();
   }, []);
 
-  function fetchPersons() {
-    return API_USERS.getPersons((result, status, err) => {
+  function fetchUsers() {
+    return API_USERS.getUsers((result, status, err) => {
       if (result !== null && status === 200) {
         setTableData((tableData) => result);
         setIsLoaded((isLoaded) => true);
@@ -53,20 +53,20 @@ function PersonContainer(props) {
     setIsLoaded(false);
     setIsDeleted(false); // Reset the delete operation flag
     toggleForm();
-    fetchPersons();
+    fetchUsers();
   }
 
   return (
     <div>
       <CardHeader>
-        <strong> Person Management </strong>
+        <strong> User Management </strong>
       </CardHeader>
       <Card>
         <br />
         <Row>
           <Col sm={{ size: "8", offset: 1 }}>
             <Button color="primary" onClick={toggleForm}>
-              Add Person{" "}
+              Add User{" "}
             </Button>
           </Col>
         </Row>
@@ -74,7 +74,7 @@ function PersonContainer(props) {
         <Row>
           <Col sm={{ size: "8", offset: 1 }}>
             {isLoaded && (
-              <PersonTable
+              <UserTable
                 tableData={tableData}
                 onDelete={handleDeleteCallback}
               /> // Step 3: Pass the callback function
@@ -90,13 +90,13 @@ function PersonContainer(props) {
       </Card>
 
       <Modal isOpen={isSelected} toggle={toggleForm} size="lg">
-        <ModalHeader toggle={toggleForm}> Add Person: </ModalHeader>
+        <ModalHeader toggle={toggleForm}> Add User: </ModalHeader>
         <ModalBody>
-          <PersonForm reloadHandler={reload} />
+          <UserForm reloadHandler={reload} />
         </ModalBody>
       </Modal>
     </div>
   );
 }
 
-export default PersonContainer;
+export default UserContainer;

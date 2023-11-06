@@ -3,15 +3,15 @@ package ro.tuc.ds2020.dtos;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PersonDTO {
+public class UserDTO {
     private UUID id;
     private String name;
     private int age;
 
-    public PersonDTO() {
+    public UserDTO() {
     }
 
-    public PersonDTO(UUID id, String name, int age) {
+    public UserDTO(UUID id, String name, int age) {
         this.id = id;
         this.name = name;
         this.age = age;
@@ -45,9 +45,9 @@ public class PersonDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PersonDTO personDTO = (PersonDTO) o;
-        return age == personDTO.age &&
-                Objects.equals(name, personDTO.name);
+        UserDTO userDTO = (UserDTO) o;
+        return age == userDTO.age &&
+                Objects.equals(name, userDTO.name);
     }
 
     @Override

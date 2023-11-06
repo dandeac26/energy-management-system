@@ -5,7 +5,7 @@ import ro.tuc.ds2020.dtos.validators.annotation.AgeLimit;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-public class PersonDetailsDTO {
+public class UserDetailsDTO {
 
     private UUID id;
     @NotNull
@@ -15,16 +15,16 @@ public class PersonDetailsDTO {
     @AgeLimit(limit = 18)
     private int age;
 
-    public PersonDetailsDTO() {
+    public UserDetailsDTO() {
     }
 
-    public PersonDetailsDTO( String name, String address, int age) {
+    public UserDetailsDTO( String name, String address, int age) {
         this.name = name;
         this.address = address;
         this.age = age;
     }
 
-    public PersonDetailsDTO(UUID id, String name, String address, int age) {
+    public UserDetailsDTO(UUID id, String name, String address, int age) {
         this.id = id;
         this.name = name;
         this.address = address;

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
-import PersonForm from "./person-form";
+import UserForm from "./user-form";
 import Table from "../../commons/tables/table";
-import * as API_USERS from "../api/person-api";
-// import {fetchPersons(), onDelete()} from "./person/person-container";
+import * as API_USERS from "../api/user-api";
+// import {fetchUsers(), onDelete()} from "./user/user-container";
 
-function PersonTable(props) {
+function UserTable(props) {
   const [error, setError] = useState({ status: 0, errorMessage: null });
   const [tableData, setTableData] = useState(props.tableData);
 
@@ -19,10 +19,10 @@ function PersonTable(props) {
   const [updatedData, setUpdatedData] = useState({});
 
   const handleDelete = (id) => {
-    return API_USERS.deletePerson(id, (result, status, err) => {
+    return API_USERS.deleteUser(id, (result, status, err) => {
       if (status === 204) {
-        console.log("Successfully deleted person with id: " + id);
-        // props.fetchPersons(); // Call the fetchPersons function from the props
+        console.log("Successfully deleted user with id: " + id);
+        // props.fetchUsers(); // Call the fetchUsers function from the props
         // props.onDelete(); // Step 4: Notify delete operation
         window.location.reload();
       } else {
@@ -42,27 +42,21 @@ function PersonTable(props) {
     setIsLoaded(false);
     setIsDeleted(false); // Reset the delete operation flag
     toggleForm();
-    // fetchPersons();
+    // fetchUsers();
   }
-  //   const handleUpdateSubmit = async (updatedRow) => {
-  //     try {
-  //       const response = await API_USERS.updatePerson(updatedRow); // Send a PUT request to update the data
-  //       if (response.status === 200) {
-  //         // Handle a successful update response
-  //         console.log("Successfully updated person with id: " + updatedRow.id);
-  //         fetchUpdatedData(); // Fetch the updated data
-  //         setIsUpdating(false); // Close the form or modal
-  //       } else {
-  //         setError({ status: response.status, errorMessage: response.data.errorMessage });
-  //       }
-  //     } catch (error) {
-  //       setError({ status: 500, errorMessage: "Error updating data" });
-  //     }
-  //   };
+
   const columns = [
     {
       Header: "Name",
       accessor: "name",
+    },
+    {
+      Header: "Email",
+      accessor: "email",
+    },
+    {
+      Header: "Address",
+      accessor: "address",
     },
     {
       Header: "Age",
@@ -108,9 +102,9 @@ function PersonTable(props) {
       />
 
       <Modal isOpen={isSelected} toggle={toggleForm} size="lg">
-        <ModalHeader toggle={toggleForm}> Add Person: </ModalHeader>
+        <ModalHeader toggle={toggleForm}> Add User: </ModalHeader>
         <ModalBody>
-          <PersonForm
+          <UserForm
             reloadHandler={reload}
             updatedData={updatedData}
             isUpdating={isUpdating}
@@ -121,4 +115,4 @@ function PersonTable(props) {
   );
 }
 
-export default PersonTable;
+export default UserTable;

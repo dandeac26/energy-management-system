@@ -3,8 +3,8 @@ import { Col, Row } from "reactstrap";
 import { FormGroup, Input, Label } from "reactstrap";
 import Button from "react-bootstrap/Button";
 
-import Validate from "./validators/person-validators";
-import * as API_USERS from "../api/person-api";
+import Validate from "./validators/user-validators";
+import * as API_USERS from "../api/user-api";
 import APIResponseErrorMessage from "../../commons/errorhandling/api-response-error-message";
 
 const formControlsInit = {
@@ -41,7 +41,7 @@ const formControlsInit = {
   },
 };
 
-function PersonForm(props) {
+function UserForm(props) {
   const [error, setError] = useState({ status: 0, errorMessage: null });
   const [formIsValid, setFormIsValid] = useState(false);
   const [formControls, setFormControls] = useState(formControlsInit);
@@ -99,10 +99,10 @@ function PersonForm(props) {
     setFormIsValid((formIsValidPrev) => formIsValid);
   }
 
-  function registerPerson(person) {
-    return API_USERS.postPerson(person, (result, status, err) => {
+  function registerUser(user) {
+    return API_USERS.postUser(user, (result, status, err) => {
       if (result !== null && (status === 200 || status === 201)) {
-        console.log("Successfully inserted person with id: " + result);
+        console.log("Successfully inserted user with id: " + result);
         props.reloadHandler();
       } else {
         setError((error) => ({ status: status, errorMessage: err }));
@@ -110,10 +110,10 @@ function PersonForm(props) {
     });
   }
 
-  //   function deletePerson(person) {
-  //     return API_USERS.deletePerson(person, (result, status, err) => {
+  //   function deleteUser(user) {
+  //     return API_USERS.deleteUser(user, (result, status, err) => {
   //       if (result !== null && (status === 200 || status === 201)) {
-  //         console.log("Successfully inserted person with id: " + result);
+  //         console.log("Successfully inserted user with id: " + result);
   //         props.reloadHandler();
   //       } else {
   //         setError((error) => ({ status: status, errorMessage: err }));
@@ -122,24 +122,26 @@ function PersonForm(props) {
   //   }
 
   function handleSubmit() {
-    let person = {
+    let user = {
       name: formControls.name.value,
       email: formControls.email.value,
       age: formControls.age.value,
       address: formControls.address.value,
     };
-    registerPerson(person);
+    registerUser(user);
   }
 
+  function handleUpdateSubmit() {}
+
   // function handleDelete() {
-  //     let person = {
+  //     let user = {
   //         id: formControls.id.value,
   //         name: formControls.name.value,
   //         email: formControls.email.value,
   //         age: formControls.age.value,
   //         address: formControls.address.value
   //     };
-  //     deletePerson(person);
+  //     deleteUser(user);
   // }
 
   return (
@@ -220,10 +222,9 @@ function PersonForm(props) {
           <Button
             type={"submit"}
             disabled={!formIsValid}
-            onClick={handleSubmit}
+            onClick={props.isUpdating ? handleUpdateSubmit : handleSubmit}
           >
-            {" "}
-            Submit{" "}
+            {props.isUpdating ? "Update" : "Submit"}
           </Button>
         </Col>
       </Row>
@@ -238,4 +239,4 @@ function PersonForm(props) {
   );
 }
 
-export default PersonForm;
+export default UserForm;

@@ -46,6 +46,33 @@ function DeviceForm(props) {
   const [formIsValid, setFormIsValid] = useState(false);
   const [formControls, setFormControls] = useState(formControlsInit);
 
+  useEffect(() => {
+    if (props.isUpdating) {
+      // Populate the form fields with the updated data
+      setFormControls({
+        description: {
+          ...formControls.description,
+          value: props.updatedData.description,
+        },
+        userId: {
+          ...formControls.userId,
+          value: props.updatedData.userId,
+        },
+        hourlyMaxConsumption: {
+          ...formControls.hourlyMaxConsumption,
+          value: props.updatedData.hourlyMaxConsumption,
+        },
+        address: {
+          ...formControls.address,
+          value: props.updatedData.address,
+        },
+      });
+    } else {
+      // Reset the form fields to their initial state when not in update mode
+      setFormControls(formControlsInit);
+    }
+  }, [props.isUpdating, props.updatedData]);
+
   function handleChange(event) {
     let name = event.target.name;
     let value = event.target.value;
@@ -92,7 +119,7 @@ function DeviceForm(props) {
     };
     registerDevice(device);
   }
-
+  function handleUpdateSubmit() {}
   return (
     <div>
       <FormGroup id="description">
@@ -172,10 +199,9 @@ function DeviceForm(props) {
           <Button
             type={"submit"}
             disabled={!formIsValid}
-            onClick={handleSubmit}
+            onClick={props.isUpdating ? handleUpdateSubmit : handleSubmit}
           >
-            {" "}
-            Submit{" "}
+            {props.isUpdating ? "Update" : "Submit"}
           </Button>
         </Col>
       </Row>

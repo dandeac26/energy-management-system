@@ -40,4 +40,19 @@ function postDevice(user, callback) {
   RestApiClient.performRequest(request, callback);
 }
 
-export { getDevices, getDeviceById, postDevice };
+function deleteDevice(id, callback) {
+  let request = new Request(
+    `${HOST.backend_device_api}${endpoint.device}/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  console.log("URL: " + request.url);
+  RestApiClient.performRequest(request, callback);
+}
+
+export { getDevices, getDeviceById, postDevice, deleteDevice };

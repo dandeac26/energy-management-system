@@ -19,7 +19,7 @@ function DeviceContainer(props) {
   const [isSelected, setIsSelected] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const [isDeleted, setIsDeleted] = useState(false);
   // Store error status and message in the same object because we don't want
   // to render the component twice (using setError and setErrorStatus)
   // This approach can be used for linked state variables.
@@ -52,6 +52,10 @@ function DeviceContainer(props) {
     fetchDevices();
   }
 
+  function handleDeleteCallback() {
+    setIsDeleted(true); // Step 2: Notify delete operation
+  }
+
   return (
     <div>
       <CardHeader>
@@ -69,7 +73,12 @@ function DeviceContainer(props) {
         <br />
         <Row>
           <Col sm={{ size: "8", offset: 1 }}>
-            {isLoaded && <DeviceTable tableData={tableData} />}
+            {isLoaded && (
+              <DeviceTable
+                tableData={tableData}
+                onDelete={handleDeleteCallback}
+              /> // Step 3: Pass the callback function
+            )}
             {error.status > 0 && (
               <APIResponseErrorMessage
                 errorStatus={error.status}

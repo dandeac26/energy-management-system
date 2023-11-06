@@ -1,16 +1,14 @@
 package ro.tuc.ds2020.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-public class Person  implements Serializable{
+@Table(name = "Users")
+public class User  implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
@@ -30,10 +28,10 @@ public class Person  implements Serializable{
     private int age;
 
 
-    public Person() {
+    public User() {
     }
 
-    public Person(String name, String address, int age) {
+    public User(String name, String address, int age) {
         this.name = name;
         this.address = address;
         this.age = age;
