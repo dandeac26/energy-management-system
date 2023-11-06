@@ -11,6 +11,7 @@ import ro.tuc.ds2020.dtos.UserDetailsDTO;
 import ro.tuc.ds2020.dtos.builders.UserBuilder;
 import ro.tuc.ds2020.entities.User;
 import ro.tuc.ds2020.repositories.UserRepository;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,24 +37,46 @@ public class UserService {
 
     public UserDTO findUserById(UUID id) {
         Optional<User> prosumerOptional = userRepository.findById(id);
-        if (!prosumerOptional.isPresent()) {
+        if (prosumerOptional.isEmpty()) {  /// change to this if (!prosumerOptional.isPresent()) {
             LOGGER.error("User with id {} was not found in db", id);
             throw new ResourceNotFoundException(User.class.getSimpleName() + " with id: " + id);
         }
         return UserBuilder.toUserDTO(prosumerOptional.get());
     }
 
-    public UUID insert(UserDetailsDTO userDTO) {
+    public UUID insert(UserDetailsDTO userDTO, BindingResult bindingResult) {
+
+        if (userRepository.existsByName(userDTO.getName())) {
+            LOGGER.error("User with name {} already exists", userDTO.getName());
+            return UUID.fromString("00000000-0000-0000-0000-000000000000");
+        }
+
+
+        if (bindingResult.hasErrors()) {
+            LOGGER.error("Validation errors in UserDetailsDTO: {}", bindingResult.getAllErrors());
+            return UUID.fromString("11111111-1111-1111-1111-111111111111");
+        }
+
+
+        if (!isValidRole(userDTO.getRole())) {
+            LOGGER.error("Invalid role value: {}", userDTO.getRole());
+            return UUID.fromString("22222222-2222-2222-2222-222222222222");
+        }
+
         User user = UserBuilder.toEntity(userDTO);
         user = userRepository.save(user);
         LOGGER.debug("User with id {} was inserted in db", user.getId());
         return user.getId();
     }
 
+    private boolean isValidRole(String role) {
+        return "client".equals(role) || "admin".equals(role);
+    }
+
     @Transactional
     public UUID update(UUID userId, UserDetailsDTO updatedUserDTO) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             LOGGER.error("User with id {} was not found in db", userId);
             throw new ResourceNotFoundException(User.class.getSimpleName() + " with id: " + userId);
         }
@@ -61,8 +84,8 @@ public class UserService {
         User existingUser = userOptional.get();
 
         existingUser.setName(updatedUserDTO.getName());
-        existingUser.setAge(updatedUserDTO.getAge());
-        existingUser.setAddress(updatedUserDTO.getAddress());
+        existingUser.setPassword(updatedUserDTO.getPassword());
+        existingUser.setRole(updatedUserDTO.getRole());
         existingUser = userRepository.save(existingUser);
 
         LOGGER.debug("User with id {} was updated in db", existingUser.getId());

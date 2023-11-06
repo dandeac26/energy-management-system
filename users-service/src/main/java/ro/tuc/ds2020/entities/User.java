@@ -3,6 +3,7 @@ package ro.tuc.ds2020.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -18,23 +19,29 @@ public class User  implements Serializable{
 //    @Column(name="id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
-
-    @Column(name = "address", nullable = false)
-    private String address;
-
-    @Column(name = "age", nullable = false)
-    private int age;
-
+    @Column(name = "password", nullable = false)
+    private String password;
+    @Column(name = "role", nullable = false)
+    @Pattern(regexp = "^(client|admin)$", message = "Invalid role value")
+    private String role;
 
     public User() {
     }
 
-    public User(String name, String address, int age) {
+    public User(String name, String password, String role) {
         this.name = name;
-        this.address = address;
-        this.age = age;
+        this.password = password;
+        this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public UUID getId() {
@@ -53,19 +60,11 @@ public class User  implements Serializable{
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getRole() {
+        return role;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

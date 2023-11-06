@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * Example: JPA generate Query by Field
      */
     List<User> findByName(String name);
-
+    boolean existsByName(String name);
     /**
      * Example: Write Custom Query
      */

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ro.tuc.ds2020.dtos.UserDTO;
 import ro.tuc.ds2020.dtos.UserDetailsDTO;
 import ro.tuc.ds2020.services.UserService;
+import org.springframework.validation.BindingResult;
+
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,8 +34,13 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<UUID> insertProsumer(@Valid @RequestBody UserDetailsDTO userDTO) {
-        UUID userID = userService.insert(userDTO);
+    public ResponseEntity<?> insertUser(@Valid @RequestBody UserDetailsDTO userDTO, BindingResult bindingResult) {
+        UUID userID = userService.insert(userDTO, bindingResult);
+
+        if (userID == null) {
+            return new ResponseEntity<>("Validation failed or invalid role", HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(userID, HttpStatus.CREATED);
     }
 

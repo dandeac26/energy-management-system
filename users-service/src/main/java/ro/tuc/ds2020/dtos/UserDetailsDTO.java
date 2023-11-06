@@ -11,28 +11,38 @@ public class UserDetailsDTO {
     @NotNull
     private String name;
     @NotNull
-    private String address;
-    @AgeLimit(limit = 18)
-    private int age;
+    private String password;
+    @NotNull
+    private String role;
+
+
 
     public UserDetailsDTO() {
     }
 
-    public UserDetailsDTO( String name, String address, int age) {
+    public UserDetailsDTO(String name, String password, String role) {
         this.name = name;
-        this.address = address;
-        this.age = age;
+        this.password = password;
+        this.role = role;
     }
 
-    public UserDetailsDTO(UUID id, String name, String address, int age) {
+    public UserDetailsDTO(UUID id, String name, String password,  String role) {
         this.id = id;
         this.name = name;
-        this.address = address;
-        this.age = age;
+        this.password = password;
+        this.role = role;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setId(UUID id) {
@@ -47,19 +57,11 @@ public class UserDetailsDTO {
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getRole() {
+        return role;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
+    public void setRole(String role) {
+        this.role = role;
     }
 }
