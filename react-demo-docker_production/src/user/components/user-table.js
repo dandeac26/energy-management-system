@@ -47,20 +47,21 @@ function UserTable(props) {
 
   const columns = [
     {
+      Header: "Id",
+      accessor: "id",
+    },
+    {
       Header: "Name",
       accessor: "name",
     },
+
     {
-      Header: "Email",
-      accessor: "email",
+      Header: "Password",
+      accessor: "password",
     },
     {
-      Header: "Address",
-      accessor: "address",
-    },
-    {
-      Header: "Age",
-      accessor: "age",
+      Header: "Role",
+      accessor: "role",
     },
     {
       Header: "Actions",

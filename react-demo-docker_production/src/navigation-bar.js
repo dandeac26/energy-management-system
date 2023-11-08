@@ -6,6 +6,7 @@ import {
   Nav,
   Navbar,
   NavbarBrand,
+  Button,
   NavLink,
   UncontrolledDropdown,
 } from "reactstrap";
@@ -36,6 +37,11 @@ function NavigationBar() {
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
+        </Nav>
+        <Nav className="ml-auto" navbar>
+          {" "}
+          {/* Move "Login" button to the right */}
+          <Button href="/login">Login</Button>
         </Nav>
       </Navbar>
     </div>

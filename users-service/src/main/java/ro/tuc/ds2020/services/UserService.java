@@ -3,6 +3,7 @@ package ro.tuc.ds2020.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.tuc.ds2020.controllers.handlers.exceptions.model.ResourceNotFoundException;
@@ -17,16 +18,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Import BCrypt
 
 @Service
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; // Create a password encoder
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
+//    @Autowired
+//    public UserService(UserRepository userRepository) {
+//        this.userRepository = userRepository;
+//    }
 
     public List<UserDTO> findUsers() {
         List<User> userList = userRepository.findAll();
@@ -62,6 +71,7 @@ public class UserService {
             LOGGER.error("Invalid role value: {}", userDTO.getRole());
             return UUID.fromString("22222222-2222-2222-2222-222222222222");
         }
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         User user = UserBuilder.toEntity(userDTO);
         user = userRepository.save(user);
@@ -84,7 +94,7 @@ public class UserService {
         User existingUser = userOptional.get();
 
         existingUser.setName(updatedUserDTO.getName());
-        existingUser.setPassword(updatedUserDTO.getPassword());
+        existingUser.setPassword(passwordEncoder.encode(updatedUserDTO.getPassword()));
         existingUser.setRole(updatedUserDTO.getRole());
         existingUser = userRepository.save(existingUser);
 
@@ -101,6 +111,30 @@ public class UserService {
         } else {
             LOGGER.error("User with id {} was not found in db and could not be deleted", userId);
             throw new ResourceNotFoundException(User.class.getSimpleName() + " with id: " + userId);
+        }
+    }
+
+    public UserDTO authenticate(UserDetailsDTO userDTO) {
+        // Find the user by username (assuming username is unique)
+        User user = userRepository.findByName(userDTO.getName());
+
+        if (user == null) {
+            System.out.println("search by name failed");
+            // User not found, return null or throw an exception
+            return null; // You may want to log or return an error message like "User not found."
+        }
+
+        // Use the password encoder to verify the password
+        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            // Passwords match, authentication is successful
+            System.out.println("success");
+            return UserBuilder.toUserDTO(user);
+
+        } else {
+            System.out.println("pass doens't match");
+            System.out.println(passwordEncoder.matches("$2a$10$jdxMFnEZu1zqgli4.iU4A.qbhOLoGkuElF4W5MO5/ZoMvSKzZLzTW","$2a$10$zp/OD4wcRtkJXyHAM5jLmOHZ9HmjnL4SPZtaZqe2oVQmWInKqfuem"));
+            // Passwords don't match, return null or throw an exception
+            return null; // You may want to log or return an error message like "Incorrect password."
         }
     }
 

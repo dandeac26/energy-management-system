@@ -7,7 +7,9 @@ import java.util.UUID;
 
 public class DeviceDTO extends RepresentationModel<DeviceDTO> {
     private UUID id;
+    private UUID userId;
     private String description;
+    private String address;
     private int hourlyMaxConsumption;
 
     public DeviceDTO() {
@@ -17,6 +19,29 @@ public class DeviceDTO extends RepresentationModel<DeviceDTO> {
         this.id = id;
         this.description = description;
         this.hourlyMaxConsumption = hourlyMaxConsumption;
+    }
+    public DeviceDTO(UUID id, UUID userId, String description, String address, int hourlyMaxConsumption) {
+        this.id = id;
+        this.userId = userId;
+        this.description = description;
+        this.address = address;
+        this.hourlyMaxConsumption = hourlyMaxConsumption;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public UUID getId() {

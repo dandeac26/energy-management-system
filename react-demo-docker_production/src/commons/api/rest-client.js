@@ -14,6 +14,7 @@ function performRequest(request, callback) {
         // Successful deletion, no response body
         callback(null, response.status, null);
       } else if (response.ok) {
+        // console.log("response body : ", response);
         response.json().then((json) => callback(json, response.status, null));
       } else {
         response.json().then((err) => callback(null, response.status, err));

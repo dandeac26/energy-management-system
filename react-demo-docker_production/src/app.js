@@ -7,7 +7,9 @@ import UserContainer from "./user/user-container";
 import DeviceContainer from "./device/device-container";
 import ErrorPage from "./commons/errorhandling/error-page";
 import styles from "./commons/styles/project-style.css";
-
+import Login from "./login/login.js";
+import PrivateRoute from "./user/private-route.js";
+import Profile from "./profile/profile.js";
 /*
     Namings: https://reactjs.org/docs/jsx-in-depth.html#html-tags-vs.-react-components
     Should I use hooks?: https://reactjs.org/docs/hooks-faq.html#should-i-use-hooks-classes-or-a-mix-of-both
@@ -24,6 +26,8 @@ function App() {
             <Route exact path="/user" render={() => <UserContainer />} />
 
             <Route exact path="/device" render={() => <DeviceContainer />} />
+            <PrivateRoute path="/profile" component={Profile} />
+            <Route exact path="/login" component={Login} />
 
             {/*Error*/}
             <Route exact path="/error" render={() => <ErrorPage />} />

@@ -7,7 +7,17 @@ import Validate from "./validators/user-validators";
 import * as API_USERS from "../api/user-api";
 import APIResponseErrorMessage from "../../commons/errorhandling/api-response-error-message";
 
+const validRoles = ["client", "admin"];
 const formControlsInit = {
+  // id: {
+  //   value: "",
+  //   placeholder: "Id...",
+  //   valid: false,
+  //   touched: false,
+  //   validationRules: {
+  //     idValidator: true,
+  //   },
+  // },
   name: {
     value: "",
     placeholder: "What is your name?...",
@@ -18,26 +28,28 @@ const formControlsInit = {
       isRequired: true,
     },
   },
-  email: {
+
+  password: {
     value: "",
-    placeholder: "Email...",
+    placeholder: "Password...",
     valid: false,
     touched: false,
     validationRules: {
-      emailValidator: true,
+      minLength: 3,
+      isRequired: true,
     },
   },
-  age: {
+  role: {
     value: "",
-    placeholder: "Age...",
+    placeholder: "role...",
     valid: false,
-    touched: false,
-  },
-  address: {
-    value: "",
-    placeholder: "Cluj, Zorilor, Str. Lalelelor 21...",
-    valid: false,
-    touched: false,
+    touched: true,
+    customValidation: (value) => {
+      if (!validRoles.includes(value)) {
+        return "The value must be either 'client' or 'admin'.";
+      }
+      return null; // Return null to indicate a valid value
+    },
   },
 };
 
@@ -50,21 +62,22 @@ function UserForm(props) {
     if (props.isUpdating) {
       // Populate the form fields with the updated data
       setFormControls({
+        // id: {
+        //   ...formControls.id,
+        //   value: props.updatedData.id,
+        // },
         name: {
           ...formControls.name,
           value: props.updatedData.name,
         },
-        email: {
-          ...formControls.email,
-          value: props.updatedData.email,
+
+        password: {
+          ...formControls.password,
+          // value: props.updatedData.password,
         },
-        age: {
-          ...formControls.age,
-          value: props.updatedData.age,
-        },
-        address: {
-          ...formControls.address,
-          value: props.updatedData.address,
+        role: {
+          ...formControls.role,
+          value: props.updatedData.role,
         },
       });
     } else {
@@ -102,7 +115,7 @@ function UserForm(props) {
   function registerUser(user) {
     return API_USERS.postUser(user, (result, status, err) => {
       if (result !== null && (status === 200 || status === 201)) {
-        console.log("Successfully inserted user with id: " + result);
+        console.log("Inserted user with id: " + result);
         props.reloadHandler();
       } else {
         setError((error) => ({ status: status, errorMessage: err }));
@@ -110,42 +123,53 @@ function UserForm(props) {
     });
   }
 
-  //   function deleteUser(user) {
-  //     return API_USERS.deleteUser(user, (result, status, err) => {
-  //       if (result !== null && (status === 200 || status === 201)) {
-  //         console.log("Successfully inserted user with id: " + result);
-  //         props.reloadHandler();
-  //       } else {
-  //         setError((error) => ({ status: status, errorMessage: err }));
-  //       }
-  //     });
-  //   }
-
   function handleSubmit() {
     let user = {
+      // id: props.updatedData.id,
       name: formControls.name.value,
-      email: formControls.email.value,
-      age: formControls.age.value,
-      address: formControls.address.value,
+      password: formControls.password.value,
+      role: formControls.role.value,
     };
     registerUser(user);
   }
 
-  function handleUpdateSubmit() {}
-
-  // function handleDelete() {
-  //     let user = {
-  //         id: formControls.id.value,
-  //         name: formControls.name.value,
-  //         email: formControls.email.value,
-  //         age: formControls.age.value,
-  //         address: formControls.address.value
-  //     };
-  //     deleteUser(user);
-  // }
+  function handleUpdateSubmit() {
+    let user = {
+      // id: props.updatedData.id,
+      name: formControls.name.value,
+      password: formControls.password.value,
+      role: formControls.role.value,
+    };
+    API_USERS.updateUser(props.updatedData.id, user, (result, status, err) => {
+      if (result !== null && (status === 200 || status === 201)) {
+        console.log("Inserted user with id: " + result);
+        props.reloadHandler();
+      } else {
+        setError((error) => ({ status: status, errorMessage: err }));
+      }
+    });
+    window.location.reload();
+  }
 
   return (
     <div>
+      {/* <FormGroup id="id">
+        <Label for="idField"> Id: </Label>
+        <Input
+          name="id"
+          id="idField"
+          placeholder={formControls.id.placeholder}
+          onChange={handleChange}
+          defaultValue={formControls.id.value}
+          touched={formControls.id.touched ? 1 : 0}
+          valid={formControls.id.valid}
+          required
+        />
+        {formControls.id.touched && !formControls.id.valid && (
+          <div className={"error-message"}> * Id must have a valid format</div>
+        )}
+      </FormGroup> */}
+
       <FormGroup id="name">
         <Label for="nameField"> Name: </Label>
         <Input
@@ -166,53 +190,36 @@ function UserForm(props) {
         )}
       </FormGroup>
 
-      <FormGroup id="email">
-        <Label for="emailField"> Email: </Label>
+      <FormGroup id="role">
+        <Label for="roleField"> Role: </Label>
         <Input
-          name="email"
-          id="emailField"
-          placeholder={formControls.email.placeholder}
+          name="role"
+          id="roleField"
+          placeholder={formControls.role.placeholder}
           onChange={handleChange}
-          defaultValue={formControls.email.value}
-          touched={formControls.email.touched ? 1 : 0}
-          valid={formControls.email.valid}
+          defaultValue={formControls.role.value}
+          touched={formControls.role.touched ? 1 : 0}
+          valid={formControls.role.valid}
           required
         />
-        {formControls.email.touched && !formControls.email.valid && (
-          <div className={"error-message"}>
+        {formControls.role.touched && !formControls.role.valid && (
+          <div classRole={"error-message row"}>
             {" "}
-            * Email must have a valid format
+            * Role must be client or admin{" "}
           </div>
         )}
       </FormGroup>
 
-      <FormGroup id="address">
-        <Label for="addressField"> Address: </Label>
+      <FormGroup id="password">
+        <Label for="passwordField"> Password: </Label>
         <Input
-          name="address"
-          id="addressField"
-          placeholder={formControls.address.placeholder}
+          name="password"
+          id="passwordField"
+          placeholder={formControls.password.placeholder}
           onChange={handleChange}
-          defaultValue={formControls.address.value}
-          touched={formControls.address.touched ? 1 : 0}
-          valid={formControls.address.valid}
-          required
-        />
-      </FormGroup>
-
-      <FormGroup id="age">
-        <Label for="ageField"> Age: </Label>
-        <Input
-          name="age"
-          id="ageField"
-          placeholder={formControls.age.placeholder}
-          min={0}
-          max={100}
-          type="number"
-          onChange={handleChange}
-          defaultValue={formControls.age.value}
-          touched={formControls.age.touched ? 1 : 0}
-          valid={formControls.age.valid}
+          defaultValue={formControls.password.value}
+          touched={formControls.password.touched ? 1 : 0}
+          valid={formControls.password.valid}
           required
         />
       </FormGroup>

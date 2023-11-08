@@ -4,6 +4,7 @@ package ro.tuc.ds2020.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ro.tuc.ds2020.dtos.UserDTO;
 import ro.tuc.ds2020.dtos.UserDetailsDTO;
@@ -14,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Import BCrypt
 
 @RestController
 @CrossOrigin
@@ -21,10 +23,11 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-
+    private final PasswordEncoder passwordEncoder;
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping()
@@ -35,6 +38,9 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<?> insertUser(@Valid @RequestBody UserDetailsDTO userDTO, BindingResult bindingResult) {
+
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
         UUID userID = userService.insert(userDTO, bindingResult);
 
         if (userID == null) {
@@ -60,6 +66,18 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable("id") UUID userId) {
         userService.delete(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticateUser(@RequestBody UserDetailsDTO userDTO) {
+        UserDTO authenticatedUser = userService.authenticate(userDTO);
+
+        if (authenticatedUser != null) {
+            return new ResponseEntity<>(authenticatedUser, HttpStatus.OK);
+        } else {
+            System.out.printf("authfail");
+            return new ResponseEntity<>("Authentication failed", HttpStatus.UNAUTHORIZED);
+        }
     }
 
 }

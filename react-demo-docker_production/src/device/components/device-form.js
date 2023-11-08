@@ -4,7 +4,7 @@ import { FormGroup, Input, Label } from "reactstrap";
 import Button from "react-bootstrap/Button";
 
 import Validate from "./validators/device-validators";
-import * as API_USERS from "../api/device-api";
+import * as API_DEVICES from "../api/device-api";
 import APIResponseErrorMessage from "../../commons/errorhandling/api-response-error-message";
 
 const formControlsInit = {
@@ -100,9 +100,9 @@ function DeviceForm(props) {
   }
 
   function registerDevice(device) {
-    return API_USERS.postDevice(device, (result, status, err) => {
+    return API_DEVICES.postDevice(device, (result, status, err) => {
       if (result !== null && (status === 200 || status === 201)) {
-        console.log("Successfully inserted device with id: " + result);
+        console.log("Inserted device with id: " + result);
         props.reloadHandler();
       } else {
         setError((error) => ({ status: status, errorMessage: err }));
@@ -119,7 +119,28 @@ function DeviceForm(props) {
     };
     registerDevice(device);
   }
-  function handleUpdateSubmit() {}
+  function handleUpdateSubmit() {
+    let device = {
+      description: formControls.description.value,
+      userId: formControls.userId.value,
+      hourlyMaxConsumption: formControls.hourlyMaxConsumption.value,
+      address: formControls.address.value,
+    };
+    API_DEVICES.updateDevice(
+      props.updatedData.id,
+      device,
+      (result, status, err) => {
+        if (result !== null && (status === 200 || status === 201)) {
+          console.log("Inserted device with id: " + result);
+          props.reloadHandler();
+        } else {
+          setError((error) => ({ status: status, errorMessage: err }));
+        }
+      }
+    );
+    window.location.reload();
+  }
+
   return (
     <div>
       <FormGroup id="description">
@@ -178,7 +199,7 @@ function DeviceForm(props) {
       </FormGroup>
 
       <FormGroup id="hourlyMaxConsumption">
-        <Label for="hourlyMaxConsumptionField"> Age: </Label>
+        <Label for="hourlyMaxConsumptionField"> Max Consumption / hour: </Label>
         <Input
           name="hourlyMaxConsumption"
           id="hourlyMaxConsumptionField"

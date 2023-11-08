@@ -46,8 +46,16 @@ function DeviceTable(props) {
   }
   const columns = [
     {
+      Header: "UserId",
+      accessor: "userId",
+    },
+    {
       Header: "Description",
       accessor: "description",
+    },
+    {
+      Header: "Address",
+      accessor: "address",
     },
     {
       Header: "HourlyMaxConsumption",
