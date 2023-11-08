@@ -17,7 +17,7 @@ class Login extends Component {
     this.state = {
       name: "",
       password: "",
-      role: "client",
+      // role: "client",
     };
   }
 
@@ -32,7 +32,7 @@ class Login extends Component {
     const user = {
       name: this.state.name,
       password: this.state.password,
-      role: this.state.role,
+      // role: this.state.role,
     };
 
     const callback = (json, status, err) => {
@@ -106,9 +106,7 @@ class Login extends Component {
               >
                 Login
               </Button>
-              <Button color="secondary" type="submit">
-                Register
-              </Button>
+              <Button color="secondary">Register</Button>
             </Form>
           </Col>
         </Row>

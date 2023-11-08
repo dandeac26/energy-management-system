@@ -23,9 +23,9 @@ function App() {
           <Switch>
             <Route exact path="/" render={() => <Home />} />
 
-            <PrivateRoute path="/user" render={() => <UserContainer />} />
+            <Route exact path="/user" render={() => <UserContainer />} />
 
-            <PrivateRoute path="/device" render={() => <DeviceContainer />} />
+            <Route exact path="/device" render={() => <DeviceContainer />} />
             <PrivateRoute path="/profile" component={Profile} />
             <Route exact path="/login" component={Login} />
 

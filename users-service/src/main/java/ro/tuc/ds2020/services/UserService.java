@@ -71,9 +71,9 @@ public class UserService {
             LOGGER.error("Invalid role value: {}", userDTO.getRole());
             return UUID.fromString("22222222-2222-2222-2222-222222222222");
         }
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         User user = UserBuilder.toEntity(userDTO);
+
         user = userRepository.save(user);
         LOGGER.debug("User with id {} was inserted in db", user.getId());
         return user.getId();
@@ -123,7 +123,7 @@ public class UserService {
             // User not found, return null or throw an exception
             return null; // You may want to log or return an error message like "User not found."
         }
-
+        System.out.println(userDTO.getPassword() + " vs " + user.getPassword());
         // Use the password encoder to verify the password
         if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             // Passwords match, authentication is successful

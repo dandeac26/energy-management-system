@@ -40,7 +40,7 @@ public class UserController {
     public ResponseEntity<?> insertUser(@Valid @RequestBody UserDetailsDTO userDTO, BindingResult bindingResult) {
 
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
+//        System.out.println(userDTO.getPassword());
         UUID userID = userService.insert(userDTO, bindingResult);
 
         if (userID == null) {
