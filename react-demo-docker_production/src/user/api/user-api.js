@@ -4,6 +4,7 @@ import RestApiClient from "../../commons/api/rest-client";
 const endpoint = {
   user: "/user",
   authentication: "/user/authenticate",
+  insertUserId: "/device/insertUserId",
 };
 
 function getUsers(callback) {
@@ -38,6 +39,21 @@ function updateUser(id, user, callback) {
   RestApiClient.performRequest(request, callback);
 }
 
+function insertUserId(userId, callback) {
+  let request = new Request(HOST.backend_device_api + endpoint.insertUserId, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userId),
+  });
+
+  console.log("URL: " + request.url);
+
+  RestApiClient.performRequest(request, callback);
+}
+
 function postUser(user, callback) {
   let request = new Request(HOST.backend_api + endpoint.user, {
     method: "POST",
@@ -51,6 +67,7 @@ function postUser(user, callback) {
   console.log("URL: " + request.url);
 
   RestApiClient.performRequest(request, callback);
+  // insertUserId(user.id);
 }
 
 function authenticateUser(user, callback) {
@@ -91,4 +108,5 @@ export {
   deleteUser,
   authenticateUser,
   updateUser,
+  insertUserId,
 };

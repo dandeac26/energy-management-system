@@ -14,9 +14,6 @@ const formControlsInit = {
   //   placeholder: "Id...",
   //   valid: false,
   //   touched: false,
-  //   validationRules: {
-  //     idValidator: true,
-  //   },
   // },
   name: {
     value: "",

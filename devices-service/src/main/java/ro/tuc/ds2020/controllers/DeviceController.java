@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ro.tuc.ds2020.dtos.DeviceDTO;
 import ro.tuc.ds2020.dtos.DeviceDetailsDTO;
+import ro.tuc.ds2020.dtos.UsersIdsDetailsDTO;
 import ro.tuc.ds2020.services.DeviceService;
+import ro.tuc.ds2020.services.UsersIdsService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -24,13 +26,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class DeviceController {
 
     private final DeviceService deviceService;
-
+    private final UsersIdsService usersIdsService;
 //    @Autowired
 //    private DeviceRepository deviceRepository;
 
     @Autowired
-    public DeviceController(DeviceService deviceService) {
+    public DeviceController(DeviceService deviceService, UsersIdsService usersIdsService) {
         this.deviceService = deviceService;
+        this.usersIdsService = usersIdsService;
     }
 
     @GetMapping()
@@ -43,7 +46,16 @@ public class DeviceController {
         }
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
-
+    @DeleteMapping(value = "/deleteUserId/{userId}")
+    public ResponseEntity<Void> deleteUserId(@PathVariable("userId") UUID userId) {
+        usersIdsService.deleteUserId(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @PostMapping(value = "/insertUserId")
+    public ResponseEntity<UUID> insertUserId(@Valid @RequestBody UsersIdsDetailsDTO usersIdsDTO) {
+        UUID UsersIds = usersIdsService.insertUserId(usersIdsDTO);
+        return new ResponseEntity<>(UsersIds, HttpStatus.CREATED);
+    }
     @PostMapping()
     public ResponseEntity<UUID> insertDevice(@Valid @RequestBody DeviceDetailsDTO deviceDTO) {
         UUID deviceID = deviceService.insert(deviceDTO);
@@ -69,6 +81,7 @@ public class DeviceController {
         deviceService.delete(deviceId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 
     @GetMapping(value = "/userDevices/{userId}")
     public ResponseEntity<List<DeviceDTO>> getDevicesByUserId(@PathVariable("userId") UUID userId) {

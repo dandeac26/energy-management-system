@@ -90,6 +90,7 @@ public class DeviceService {
     }
 
 
+
 //        Optional<Device> prosumerOptional = deviceRepository.findDevicesByUserId(userId);
 //        if (!prosumerOptional.isPresent()) {
 //            LOGGER.error("Device with id {} was not found in db", userId);
