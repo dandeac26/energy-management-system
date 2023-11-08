@@ -74,34 +74,65 @@ function DeviceForm(props) {
   }, [props.isUpdating, props.updatedData]);
 
   function handleChange(event) {
-    let name = event.target.name;
-    let value = event.target.value;
+    if (props.isUpdating) {
+      let name = event.target.name;
+      let value = event.target.value;
 
-    let updatedControls = { ...formControls };
+      let updatedControls = { ...formControls };
 
-    let updatedFormElement = updatedControls[name];
+      let updatedFormElement = updatedControls[name];
 
-    updatedFormElement.value = value;
-    updatedFormElement.touched = true;
-    updatedFormElement.valid = Validate(
-      value,
-      updatedFormElement.validationRules
-    );
-    updatedControls[name] = updatedFormElement;
+      updatedFormElement.value = value;
+      updatedFormElement.touched = true;
+      updatedFormElement.valid = Validate(
+        value,
+        updatedFormElement.validationRules
+      );
+      updatedControls[name] = updatedFormElement;
 
-    let formIsValid = true;
-    for (let updatedFormElementName in updatedControls) {
-      formIsValid =
-        updatedControls[updatedFormElementName].valid && formIsValid;
+      // Calculate the overall form validity considering only touched fields
+      let isFormValid = true;
+      for (let formElementName in updatedControls) {
+        if (updatedControls[formElementName].touched) {
+          isFormValid = updatedControls[formElementName].valid && isFormValid;
+        }
+      }
+
+      setFormControls(updatedControls);
+      setFormIsValid(isFormValid);
+    } else {
+      let name = event.target.name;
+      let value = event.target.value;
+
+      let updatedControls = { ...formControls };
+
+      let updatedFormElement = updatedControls[name];
+
+      updatedFormElement.value = value;
+      updatedFormElement.touched = true;
+      updatedFormElement.valid = Validate(
+        value,
+        updatedFormElement.validationRules
+      );
+      updatedControls[name] = updatedFormElement;
+
+      let formIsValid = true;
+      for (let updatedFormElementName in updatedControls) {
+        formIsValid =
+          updatedControls[updatedFormElementName].valid && formIsValid;
+      }
+
+      setFormControls((formControls) => updatedControls);
+      setFormIsValid((formIsValidPrev) => formIsValid);
     }
-
-    setFormControls((formControls) => updatedControls);
-    setFormIsValid((formIsValidPrev) => formIsValid);
   }
 
   function registerDevice(device) {
     return API_DEVICES.postDevice(device, (result, status, err) => {
-      if (result !== null && (status === 200 || status === 201)) {
+      if (status === 400) {
+        console.log("Probably invalid userId!");
+        alert("Could not create device, probably invalid userId!");
+      } else if (result !== null && (status === 200 || status === 201)) {
         console.log("Inserted device with id: " + result);
         props.reloadHandler();
       } else {
