@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  postgres-db3:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+        # POSTGRES_ROOT_PASSWORD: "root"
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: devices_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data1:/var/lib/postgresql/data
+#    networks:
+#      demo_net:
+  devices-microservice:
+    image: devices-microservice
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8081:8081" #maybe 8081:8081
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db3:5432/devices_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres-db3
+#    networks:
+#      demo_net:
+#        ipv4_address: 172.30.0.2
+
+volumes:
+  db-data1:
+
+#networks:
+#  demo_net:
+#    external: true

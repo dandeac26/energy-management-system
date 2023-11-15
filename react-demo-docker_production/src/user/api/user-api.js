@@ -67,7 +67,7 @@ function postUser(user, callback) {
   console.log("URL: " + request.url);
 
   RestApiClient.performRequest(request, callback);
-  // insertUserId(user.id);
+  insertUserId(user.id);
 }
 
 function authenticateUser(user, callback) {
