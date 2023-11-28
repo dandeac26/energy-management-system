@@ -70,7 +70,8 @@ public class DeviceService {
         existingDevice = deviceRepository.save(existingDevice);
 
         LOGGER.debug("Device with id {} was updated in db", existingDevice.getId());
-
+        sendMessageToDeviceDeletion(deviceId);
+        sendMessageToDeviceInsertion(existingDevice.getId(), existingDevice.getHourlyMaxConsumption());
         return existingDevice.getId();
     }
 

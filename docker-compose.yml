@@ -1,0 +1,109 @@
+version: '3'
+
+services:
+
+  frontend-react:
+    build:
+      context: ./react-demo-docker_production
+      dockerfile: Dockerfile
+    ports:
+       - "3003:3000"
+    depends_on:
+      - users-service
+
+  postgres-users:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: user_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - db-data-users:/var/lib/postgresql/data
+
+  users-service:
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-users:5432/user_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+    depends_on:
+      - postgres-users
+      - devices-microservice
+
+  postgres-devices:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: devices_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data-devices:/var/lib/postgresql/data
+
+  devices-microservice:
+    image: devices-microservice
+    build:
+      context: ./devices-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081" #maybe 8081:8081
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-devices:5432/devices_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres-devices
+      - rabbitmq
+      - rabbit-microservice
+
+  rabbit-microservice:
+    restart: always
+    build:
+      context: ./sensorTransmissions-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - postgres-mon
+      - rabbitmq
+
+  postgres-mon:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: monitor_db
+    ports:
+      - "5435:5432"
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  db-data-devices:
+  db-data-users:
+#networks:
+#  custom_network:
+#    external: true
+#networks:
+#  demo_net:
+#    external: true

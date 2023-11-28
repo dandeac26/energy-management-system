@@ -29,7 +29,7 @@ def flask_run():
 
 db_user = "postgres"
 db_password = "root"
-db_host = "postgres"
+db_host = "postgres-mon"
 db_port = "5432"
 db_name = "monitor_db"
 
