@@ -1,28 +1,17 @@
-FROM maven:3.8.3-openjdk-17 AS builder
+# Use an official Python runtime as a parent image
+FROM python:3.11.2-slim
 
-COPY ./src/ /root/src
-COPY ./pom.xml /root/
-COPY ./checkstyle.xml /root/
-WORKDIR /root
-RUN mvn package
-RUN java -Djarmode=layertools -jar /root/target/ds-2020-0.0.1-SNAPSHOT.jar list
-RUN java -Djarmode=layertools -jar /root/target/ds-2020-0.0.1-SNAPSHOT.jar extract
-RUN ls -l /root
+# Set the working directory in the container
+WORKDIR /app
 
-FROM openjdk:17-jdk-slim-buster
+# Copy the contents of the current directory into the container
+COPY . /app
 
-#ENV TZ=UTC
-#ENV DB_IP=localhost
-#ENV DB_PORT=5432
-#ENV DB_USER=postgres
-#ENV DB_PASSWORD=root
-#ENV DB_DBNAME=devices_db
-#
-#
-COPY --from=builder /root/dependencies/ ./
-COPY --from=builder /root/snapshot-dependencies/ ./
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN sleep 10
-COPY --from=builder /root/spring-boot-loader/ ./
-COPY --from=builder /root/application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher","-XX:+UseContainerSupport -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -Xms512m -Xmx512m -XX:+UseG1GC -XX:+UseSerialGC -Xss512k -XX:MaxRAM=72m"]
+# Define environment variable
+ENV NAME World
+
+# Run your Python script when the container launches
+CMD ["python", "receiver.py"]

@@ -1,42 +1,38 @@
-version: '3'
+version: "3"
 
 services:
-  postgres-db3:
-    image: postgres
+  microservice:
     restart: always
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - custom_network
+
+  postgres:
+    image: postgres:latest
     environment:
       POSTGRES_USER: postgres
-        # POSTGRES_ROOT_PASSWORD: "root"
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: devices_db
+      POSTGRES_DB: monitor_db
     ports:
-      - "5433:5432"
-    volumes:
-      - db-data1:/var/lib/postgresql/data
-#    networks:
-#      demo_net:
-  devices-microservice:
-    image: devices-microservice
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    restart: always
+      - "5435:5432"
+    # networks:
+    #   - custom_network
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
     ports:
-      - "8081:8081" #maybe 8081:8081
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db3:5432/devices_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    depends_on:
-      - postgres-db3
-#    networks:
-#      demo_net:
-#        ipv4_address: 172.30.0.2
-
-volumes:
-  db-data1:
-
-#networks:
-#  demo_net:
-#    external: true
+      - "5672:5672"
+      - "15672:15672"
+    # networks:
+    #   - custom_network
+# networks:
+#   custom_network:
+#     driver: bridge

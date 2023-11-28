@@ -17,15 +17,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 @Service
 public class DeviceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceService.class);
     private final DeviceRepository deviceRepository;
-
+    private final RabbitTemplate rabbitTemplate;
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository) {
+    public DeviceService(DeviceRepository deviceRepository, RabbitTemplate rabbitTemplate) {
         this.deviceRepository = deviceRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public List<DeviceDTO> findDevices() {
@@ -48,6 +50,7 @@ public class DeviceService {
         Device device = DeviceBuilder.toEntity(deviceDTO);
         device = deviceRepository.save(device);
         LOGGER.debug("Device with id {} was inserted in db", device.getId());
+        sendMessageToDeviceInsertion(device.getId(), device.getHourlyMaxConsumption());
         return device.getId();
     }
 
@@ -76,6 +79,7 @@ public class DeviceService {
         if (deviceOptional.isPresent()) {
             deviceRepository.delete(deviceOptional.get());
             LOGGER.debug("Device with id {} was deleted from the database", deviceId);
+            sendMessageToDeviceDeletion(deviceId);
         } else {
             LOGGER.error("Device with id {} was not found in db and could not be deleted", deviceId);
             throw new ResourceNotFoundException(Device.class.getSimpleName() + " with id: " + deviceId);
@@ -89,7 +93,25 @@ public class DeviceService {
                 .collect(Collectors.toList());
     }
 
+    private void sendMessageToDeviceDeletion(UUID deviceId) {
+        // Prepare the message payload in JSON format
+        String jsonMessage = "{\"operation\":\"delete\",\"deviceId\":\"" + deviceId.toString() + "\"}";
 
+        // Publish the message to the "Sync" queue
+        rabbitTemplate.convertAndSend("SyncExchange", "Sync", jsonMessage);
+        System.out.println("MESSAGE SENT!!!:" + jsonMessage);
+        LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
+    }
+
+    private void sendMessageToDeviceInsertion(UUID deviceId, int hourlyMaxConsumption) {
+        // Prepare the message payload in JSON format
+        String jsonMessage = "{\"operation\":\"insert\",\"deviceId\":\"" + deviceId.toString() + "\",\"max_measurement\":\"" + hourlyMaxConsumption + "\"}";
+
+        // Publish the message to the "Sync" queue
+        rabbitTemplate.convertAndSend("SyncExchange", "Sync", jsonMessage);
+        System.out.println("MESSAGE SENT!!!:" + jsonMessage);
+        LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
+    }
 
 //        Optional<Device> prosumerOptional = deviceRepository.findDevicesByUserId(userId);
 //        if (!prosumerOptional.isPresent()) {

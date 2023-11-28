@@ -1,4 +1,4 @@
-flask
-psycopg2-binary
-sqlalchemy
-pika
+Flask==3.0.0
+pika==1.3.2
+psycopg2-binary==2.9.9
+SQLAlchemy==2.0.23

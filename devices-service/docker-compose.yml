@@ -14,6 +14,8 @@ services:
     volumes:
       - db-data1:/var/lib/postgresql/data
 #    networks:
+#      - custom_network
+#    networks:
 #      demo_net:
   devices-microservice:
     image: devices-microservice
@@ -30,13 +32,54 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - postgres-db3
+      - rabbitmq
+#    networks:
+#      - custom_network
+#      - rabbitmq
 #    networks:
 #      demo_net:
 #        ipv4_address: 172.30.0.2
+  rabbit-microservice:
+    restart: always
+    build:
+      context: ../sensorTransmissions-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: monitor_db
+    ports:
+      - "5435:5432"
+    # networks:
+    #   - custom_network
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      # networks:
+      #   - custom_network
+
+    # networks:
+    #   custom_network:
+    #     driver: bridge
 
 volumes:
   db-data1:
-
+#networks:
+#  custom_network:
+#    external: true
 #networks:
 #  demo_net:
 #    external: true
