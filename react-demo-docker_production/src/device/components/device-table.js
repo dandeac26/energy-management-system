@@ -3,9 +3,13 @@ import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import DeviceForm from "./device-form";
 import Table from "../../commons/tables/table";
 import * as API_USERS from "../api/device-api";
+import { useNavigate } from "react-router-dom";
+
 // import {fetchDevices(), onDelete()} from "./device/device-container";
 
 function DeviceTable(props) {
+  const navigate = useNavigate();
+
   const [error, setError] = useState({ status: 0, errorMessage: null });
   const [tableData, setTableData] = useState(props.tableData);
 
@@ -17,6 +21,10 @@ function DeviceTable(props) {
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [updatedData, setUpdatedData] = useState({});
+
+  const navigateToDeviceChart = (deviceId) => {
+    navigate(`/device-chart/${deviceId}`);
+  };
 
   const handleDelete = (id) => {
     return API_USERS.deleteDevice(id, (result, status, err) => {
@@ -77,6 +85,13 @@ function DeviceTable(props) {
           >
             Update
           </Button>
+          <Button
+            color="primary"
+            style={{ marginRight: "5px" }}
+            onClick={() => navigateToDeviceChart(row.original.id)}
+          >
+            View Chart
+          </Button>
           <Button color="danger" onClick={() => handleDelete(row.original.id)}>
             Delete
           </Button>
@@ -94,6 +109,9 @@ function DeviceTable(props) {
   return (
     <div>
       <Table
+        style={{
+          width: "90%",
+        }}
         data={props.tableData}
         columns={columns}
         search={filters}

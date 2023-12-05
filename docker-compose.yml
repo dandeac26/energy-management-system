@@ -2,6 +2,12 @@ version: '3'
 
 services:
 
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   frontend-react:
     build:
       context: ./react-demo-docker_production
@@ -71,12 +77,14 @@ services:
       - rabbit-microservice
 
   rabbit-microservice:
+    image: rabbit-microservice
     restart: always
     build:
       context: ./sensorTransmissions-service
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+      - "5001:5001"
     environment:
       - FLASK_ENV=development
     depends_on:
@@ -85,22 +93,22 @@ services:
 
   postgres-mon:
     image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_DB: monitor_db
     ports:
       - "5435:5432"
-
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    volumes:
+      - db-data-mon:/var/lib/postgresql/data
+    depends_on:
+      - rabbitmq
 
 volumes:
   db-data-devices:
   db-data-users:
+  db-data-mon:
 #networks:
 #  custom_network:
 #    external: true

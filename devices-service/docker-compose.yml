@@ -39,30 +39,30 @@ services:
 #    networks:
 #      demo_net:
 #        ipv4_address: 172.30.0.2
-  rabbit-microservice:
-    restart: always
-    build:
-      context: ../sensorTransmissions-service
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - postgres
-      - rabbitmq
-
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: monitor_db
-    ports:
-      - "5435:5432"
-    # networks:
-    #   - custom_network
-
+  # rabbit-microservice:
+  #   restart: always
+  #   build:
+  #     context: ../sensorTransmissions-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - FLASK_ENV=development
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
+  #
+  # postgres:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: monitor_db
+  #   ports:
+  #     - "5435:5432"
+  #   # networks:
+  #   #   - custom_network
+  #
   rabbitmq:
     image: "rabbitmq:3-management"
     ports:
