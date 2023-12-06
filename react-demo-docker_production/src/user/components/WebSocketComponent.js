@@ -32,11 +32,13 @@ const WebSocketComponent = () => {
 
   // Function to display notifications
   const displayPopupNotification = (data) => {
-    if (data && data.notification && data.content) {
-      console.log("Received notification:", data);
-      alert(data.notification + "\n" + data.content);
-    } else {
-      console.warn("Invalid notification data received:", data);
+    if (window.location.href === "http://localhost:3003/device") {
+      if (data && data.notification && data.content) {
+        console.log("Received notification:", data);
+        alert(data.notification + "\n" + data.content);
+      } else {
+        console.warn("Invalid notification data received:", data);
+      }
     }
   };
 

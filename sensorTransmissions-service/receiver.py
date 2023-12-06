@@ -15,10 +15,11 @@ import logging
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import BigInteger
 
 from datetime import datetime, timedelta
 
@@ -244,12 +245,57 @@ latest_measurements = {}
 #     return jsonify(latest_measurements)
 
 
-@app.route("/latest-measurements/<device_id>", methods=["GET"])
-def get_latest_measurements(device_id):
+# @app.route("/latest-measurements/<device_id>/<formattedDate>", methods=["GET"])
+# def get_latest_measurements(device_id):
+#     try:
+#         session = Session()
+#         measurements = (
+#             session.query(Measurements_tb).filter_by(deviceId=device_id).all()
+#         )
+
+#         result = [
+#             {
+#                 "id": measurement.id,
+#                 "timestamp_value": measurement.timestamp_value,
+#                 "deviceId": measurement.deviceId,
+#                 "measurement": measurement.measurement,
+#             }
+#             for measurement in measurements
+#         ]
+
+#         return jsonify(result)
+#     except SQLAlchemyError as e:
+#         print(f"The error '{e}' occurred.")
+#         session.rollback()
+#         return {"error": "An error occurred while fetching the measurements."}, 500
+#     finally:
+#         session.close()
+
+
+@app.route("/measurements/<device_id>/<formattedDate>", methods=["GET"])
+def get_latest_measurements(device_id, formattedDate):
     try:
+        # Convert the formattedDate string to a datetime object (start of day)
+        start_of_day = datetime.strptime(formattedDate, "%Y-%m-%d")
+        # Calculate end of the day as the start of the next day
+        end_of_day = start_of_day + timedelta(days=1)
+
         session = Session()
+        # Update the query
         measurements = (
-            session.query(Measurements_tb).filter_by(deviceId=device_id).all()
+            session.query(Measurements_tb)
+            .filter_by(deviceId=device_id)
+            .filter(
+                func.to_timestamp(
+                    func.cast(Measurements_tb.timestamp_value, BigInteger) / 1000
+                )
+                >= start_of_day,
+                func.to_timestamp(
+                    func.cast(Measurements_tb.timestamp_value, BigInteger) / 1000
+                )
+                < end_of_day,
+            )
+            .all()
         )
 
         result = [
@@ -378,7 +424,7 @@ def update_monitor(timestamp, deviceId, measurement_value):
             new_timestamp = datetime.utcfromtimestamp(timestamp / 1000.0)
 
             # Check if the new timestamp is 1 hour more than the previous timestamp
-            if new_timestamp - previous_timestamp >= timedelta(seconds=21):
+            if new_timestamp - previous_timestamp >= timedelta(seconds=60):  # 21
                 if float(monitor_to_update.measurement) >= float(
                     monitor_to_update.max_measurement
                 ):
@@ -393,7 +439,16 @@ def update_monitor(timestamp, deviceId, measurement_value):
                         "measurement": monitor_to_update.measurement,
                         "timestamp": timestamp,
                     }
-                    print("\nreached 1 minute\n")
+
+                insert_measurement_value = str(
+                    round(
+                        float(monitor_to_update.measurement) + float(measurement_value),
+                        5,
+                    )
+                )
+
+                insert_reading(deviceId, insert_measurement_value, timestamp)
+                print("\nreached 1 minute\n")
                 # Update timestamp and set measurement to 0
                 monitor_to_update.timestamp_value = str(int(timestamp))
                 monitor_to_update.measurement = "0"
@@ -466,7 +521,7 @@ def main():
     connection = pika.BlockingConnection(
         pika.ConnectionParameters("rabbitmq")
     )  # DOCKER
-    # socket_run()
+
     # connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))  # TEST
     channel = connection.channel()
     channel_sync = connection.channel()
@@ -503,7 +558,7 @@ def main():
         print(
             f"timestamp: {timestamp}\ndevice_id: {device_id}\nmeasurement_value: {measurement_value}\n"
         )
-        insert_reading(device_id, measurement_value, timestamp)
+
         update_monitor(timestamp, device_id, measurement_value)
 
     channel.basic_consume(
