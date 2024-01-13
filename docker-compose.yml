@@ -2,11 +2,11 @@ version: '3'
 
 services:
 
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  # rabbitmq:
+  #   image: "rabbitmq:3-management"
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
 
   frontend-react:
     build:
@@ -65,7 +65,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8081:8081" #maybe 8081:8081
+      - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-devices:5432/devices_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -73,45 +73,70 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - postgres-devices
-      - rabbitmq
-      - rabbit-microservice
+      # - rabbitmq
+      # - rabbit-microservice
 
-  rabbit-microservice:
-    image: rabbit-microservice
-    restart: always
-    build:
-      context: ./sensorTransmissions-service
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-      - "5001:5001"
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - postgres-mon
-      - rabbitmq
+  # rabbit-microservice:
+  #   image: rabbit-microservice
+  #   restart: always
+  #   build:
+  #     context: ./sensorTransmissions-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5000:5000"
+  #     - "5001:5001"
+  #   environment:
+  #     - FLASK_ENV=development
+  #   depends_on:
+  #     - postgres-mon
+  #     - rabbitmq
 
-  postgres-mon:
+  # postgres-mon:
+  #   image: postgres:latest
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: monitor_db
+  #   ports:
+  #     - "5435:5432"
+  #   volumes:
+  #     - db-data-mon:/var/lib/postgresql/data
+  #   depends_on:
+  #     - rabbitmq
+
+
+  postgres-chat:
     image: postgres:latest
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: monitor_db
+      POSTGRES_DB: chat_db
     ports:
-      - "5435:5432"
+      - "5438:5432"
     volumes:
-      - db-data-mon:/var/lib/postgresql/data
+      - chat-data:/var/lib/postgresql/data
+
+  chat-microservice:
+    image: chat-microservice
+    build:
+      context: ./chat-service/ChatService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-chat:5432/chat_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
-      - rabbitmq
+      - postgres-chat
 
 volumes:
   db-data-devices:
   db-data-users:
-  db-data-mon:
-#networks:
-#  custom_network:
-#    external: true
-#networks:
-#  demo_net:
-#    external: true
+  # db-data-mon:
+  chat-data:
+

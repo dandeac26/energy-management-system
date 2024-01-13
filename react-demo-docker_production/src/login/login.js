@@ -30,7 +30,7 @@ class Login extends Component {
     event.preventDefault();
 
     const user = {
-      name: this.state.name,
+      username: this.state.name,
       password: this.state.password,
       // role: this.state.role,
     };
@@ -47,7 +47,7 @@ class Login extends Component {
             // Authentication successful
             console.log("success log");
             localStorage.setItem("authenticatedUser", JSON.stringify(json));
-            this.props.history.push("/profile");
+            // this.props.history.push("/profile");
           } else if (status === 401) {
             // Authentication failed, handle the 401 Unauthorized error
             console.error("Authentication failed: Unauthorized");

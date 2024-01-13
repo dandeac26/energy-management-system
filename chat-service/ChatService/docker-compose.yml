@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: chat_db
+    ports:
+      - "5438:5432"
+    volumes:
+      - chat-data:/var/lib/postgresql/data
+
+  chat-microservice:
+    image: chat-microservice
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/chat_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres-db
+
+volumes:
+  chat-data:

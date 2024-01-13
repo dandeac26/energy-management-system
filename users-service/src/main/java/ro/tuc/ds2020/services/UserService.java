@@ -114,28 +114,34 @@ public class UserService {
         }
     }
 
-    public UserDTO authenticate(UserDetailsDTO userDTO) {
-        // Find the user by username (assuming username is unique)
-        User user = userRepository.findByName(userDTO.getName());
+//    public UserDTO authenticate(UserDetailsDTO userDTO) {
+//
+//        User user = userRepository.findByName(userDTO.getName());
+//
+//        if (user == null) {
+//            System.out.println("search by name failed");
+//
+//            return null;
+//        }
+//        System.out.println(userDTO.getPassword() + " vs " + user.getPassword());
+//
+//        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+//
+//            System.out.println("success");
+//            return UserBuilder.toUserDTO(user);
+//
+//        } else {
+//            System.out.println("pass doens't match");
+//            return null;
+//        }
+//    }
 
-        if (user == null) {
-            System.out.println("search by name failed");
-            // User not found, return null or throw an exception
-            return null; // You may want to log or return an error message like "User not found."
-        }
-        System.out.println(userDTO.getPassword() + " vs " + user.getPassword());
-        // Use the password encoder to verify the password
-        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
-            // Passwords match, authentication is successful
-            System.out.println("success");
-            return UserBuilder.toUserDTO(user);
+    public Optional<UserDTO> authenticate(UserDetailsDTO userDTO) {
+        Optional<User> userOptional = Optional.ofNullable(userRepository.findByName(userDTO.getName()));
 
-        } else {
-            System.out.println("pass doens't match");
-//            System.out.println(passwordEncoder.matches("$2a$10$jdxMFnEZu1zqgli4.iU4A.qbhOLoGkuElF4W5MO5/ZoMvSKzZLzTW","$2a$10$zp/OD4wcRtkJXyHAM5jLmOHZ9HmjnL4SPZtaZqe2oVQmWInKqfuem"));
-            // Passwords don't match, return null or throw an exception
-            return null; // You may want to log or return an error message like "Incorrect password."
-        }
+        return userOptional
+                .filter(user -> passwordEncoder.matches(userDTO.getPassword(), user.getPassword()))
+                .map(UserBuilder::toUserDTO);
     }
 
 }

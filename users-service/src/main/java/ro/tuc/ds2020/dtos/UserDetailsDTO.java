@@ -33,6 +33,11 @@ public class UserDetailsDTO {
         this.role = role;
     }
 
+    public UserDetailsDTO(String username, String password) {
+        this.name = username;
+        this.password = password;
+    }
+
     public UUID getId() {
         return id;
     }

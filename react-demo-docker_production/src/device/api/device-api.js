@@ -4,10 +4,17 @@ import RestApiClient from "../../commons/api/rest-client";
 const endpoint = {
   device: "/device",
 };
+const userData = JSON.parse(localStorage.getItem("authenticatedUser"));
+
+// Check if the userData and token exist
+const token = userData && userData.token ? userData.token : "";
 
 function getDevices(callback) {
   let request = new Request(HOST.backend_device_api + endpoint.device, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   console.log(request.url);
   RestApiClient.performRequest(request, callback);
@@ -21,6 +28,7 @@ function updateDevice(id, device, callback) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(device),
     }
@@ -37,6 +45,9 @@ function getUserDevices(userId, callback) {
     `${HOST.backend_device_api}${endpoint.device}/userDevices/${userId}`,
     {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
@@ -49,6 +60,9 @@ function getDeviceById(params, callback) {
     HOST.backend_device_api + endpoint.device + params.id,
     {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
@@ -62,6 +76,7 @@ function postDevice(user, callback) {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(user),
   });
@@ -79,6 +94,7 @@ function deleteDevice(id, callback) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     }
   );

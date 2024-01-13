@@ -3,7 +3,7 @@ import RestApiClient from "../../commons/api/rest-client";
 
 const endpoint = {
   user: "/user",
-  authentication: "/user/authenticate",
+  authentication: "/authenticate",
   insertUserId: "/device/insertUserId",
 };
 
@@ -72,14 +72,17 @@ function postUser(user, callback) {
 
 function authenticateUser(user, callback) {
   // Make a POST request to authenticate the user using the authentication endpoint
-  let request = new Request(HOST.backend_api + endpoint.authentication, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(user),
-  });
+  let request = new Request(
+    HOST.backend_api + endpoint.user + endpoint.authentication,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    }
+  );
 
   console.log("URL: " + request.url);
 

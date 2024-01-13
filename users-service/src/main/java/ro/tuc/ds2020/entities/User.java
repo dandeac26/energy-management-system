@@ -16,7 +16,7 @@ public class User  implements Serializable{
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-//    @Column(name="id", columnDefinition = "BINARY(16)")
+//    @Column(name="id", columnDefinition = "BINARY(16)") //THIS IS FOR MYSQL DATABASE, i use postgres!!
     private UUID id;
 
     @Column(name = "name", nullable = false, unique = true)

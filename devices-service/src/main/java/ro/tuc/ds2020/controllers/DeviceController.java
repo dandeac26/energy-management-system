@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
-@CrossOrigin
+//@CrossOrigin(origins = "http://localhost:3003")
 @RequestMapping(value = "/device")
 public class DeviceController {
 
@@ -108,5 +108,16 @@ public class DeviceController {
 //
 //        return new ResponseEntity<>(deviceDTOs, HttpStatus.OK);
 //    }
+
+    @GetMapping("/secured")
+    public String securedEndpoint(){return "Secured endpoint accessed";}
+
+    @GetMapping("/admin")
+    public String accessAdmin(){return "Accessed admin";}
+
+    @GetMapping("/client")
+    public String accessUser(){
+        return "accessed client";
+    }
 
 }

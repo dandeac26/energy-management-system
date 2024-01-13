@@ -8,13 +8,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ro.tuc.ds2020.dtos.UserDTO;
 import ro.tuc.ds2020.dtos.UserDetailsDTO;
+import ro.tuc.ds2020.jwt.JwtUtil;
+import ro.tuc.ds2020.request.AuthRequest;
+import ro.tuc.ds2020.response.JwtResponse;
 import ro.tuc.ds2020.services.UserService;
 import org.springframework.validation.BindingResult;
 
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Import BCrypt
 
 @RestController
@@ -22,12 +25,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Impo
 @RequestMapping(value = "/user")
 public class UserController {
 
+    private final JwtUtil jwtUtil;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder,JwtUtil jwtUtil) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping()
@@ -68,16 +73,43 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticateUser(@RequestBody UserDetailsDTO userDTO) {
-        UserDTO authenticatedUser = userService.authenticate(userDTO);
+//    @PostMapping("/authenticate")
+//    public ResponseEntity<?> authenticateUser(@RequestBody UserDetailsDTO userDTO) {
+//        UserDTO authenticatedUser = userService.authenticate(userDTO);
+//
+//        if (authenticatedUser != null) {
+//            return new ResponseEntity<>(authenticatedUser, HttpStatus.OK);
+//        } else {
+//            System.out.printf("authfail");
+//            return new ResponseEntity<>("Authentication failed", HttpStatus.UNAUTHORIZED);
+//        }
+//    }
 
-        if (authenticatedUser != null) {
-            return new ResponseEntity<>(authenticatedUser, HttpStatus.OK);
-        } else {
-            System.out.printf("authfail");
-            return new ResponseEntity<>("Authentication failed", HttpStatus.UNAUTHORIZED);
-        }
+//    @PostMapping("/authenticate")
+//    public JwtResponse createToken(@RequestBody AuthRequest authRequest){
+//        System.out.println(authRequest.getUsername());
+//        if("user".equals(authRequest.getUsername()) && "password".equals(authRequest.getPassword())){
+//            List<String> userRoles = new ArrayList<>();
+//            userRoles.add("ROLE_CLIENT");
+//            String jwt = jwtUtil.generateToken(authRequest.getUsername(), userRoles);
+//            return new JwtResponse(jwt);
+//        }
+//        throw new RuntimeException("credentials are invalid");
+//    }
+@PostMapping("/authenticate")
+public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
+    UserDetailsDTO userDTO = new UserDetailsDTO(authRequest.getUsername(), authRequest.getPassword());
+
+    Optional<UserDTO> optionalUserDTO = userService.authenticate(userDTO);
+
+    if (optionalUserDTO.isPresent()) {
+        UserDTO authenticatedUser = optionalUserDTO.get();
+        List<String> roles = Collections.singletonList(authenticatedUser.getRole().toUpperCase());
+        String jwt = jwtUtil.generateToken(authenticatedUser.getName(), roles);
+        return ResponseEntity.ok(new JwtResponse(jwt, authenticatedUser.getName(), roles));
+    } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
+}
 
 }

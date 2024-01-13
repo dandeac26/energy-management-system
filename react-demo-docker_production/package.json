@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.1",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^4.6.2",
     "chart.js": "^3.9.1",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-zoom": "^2.0.1",
@@ -21,10 +21,12 @@
     "react-router-dom": "^6.20.1",
     "react-scripts": "2.1.3",
     "react-table": "^6.10.0",
-    "reactstrap": "^7.0.2",
+    "reactstrap": "^7.1.0",
     "recharts": "latest",
     "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3"
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",

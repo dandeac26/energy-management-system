@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 public class IndexController {
 
     @GetMapping(value = "/")
