@@ -120,4 +120,16 @@ public class DeviceController {
         return "accessed client";
     }
 
+    @PostMapping("/client")
+    public String accessPOSTUser(){
+        return "accessed POST client";
+    }
+    @DeleteMapping("/client")
+    public String accessDelUser(){
+        return "accessed POST client";
+    }
+    @PutMapping("/client")
+    public String accessPUTUser(){
+        return "accessed POST client";
+    }
 }

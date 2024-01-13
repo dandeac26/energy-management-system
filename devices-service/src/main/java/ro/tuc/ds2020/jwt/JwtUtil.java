@@ -32,10 +32,12 @@ public class JwtUtil {
     public Boolean validateToken(String token){
         try{
             extractAllClaims(token);
+            System.out.println("Token validated!\n");
             return true;
         }catch(SignatureException ex){
             // Log the exception
         }
+        System.out.println("\nVALIDATION FAILED!!!\n");
         return false;
     }
 }

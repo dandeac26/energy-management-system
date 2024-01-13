@@ -1,28 +1,35 @@
 function performRequest(request, callback) {
   fetch(request)
-    // .then(
-    //     function (response) {
-    //         if (response.ok) {
-    //             response.json().then(json => callback(json, response.status, null));
-    //         }
-    //         else {
-    //             response.json().then(err => callback(null, response.status, err));
-    //         }
-    //     })
     .then(function(response) {
       if (response.status === 204) {
-        // Successful deletion, no response body
+        // No content
         callback(null, response.status, null);
       } else if (response.ok) {
-        // console.log("response body : ", response);
-        response.json().then((json) => callback(json, response.status, null));
+        return response
+          .text()
+          .then((text) => {
+            try {
+              // Parse JSON only if response is not empty
+              return text ? JSON.parse(text) : {};
+            } catch (error) {
+              throw new SyntaxError("Failed to parse JSON");
+            }
+          })
+          .then((json) => callback(json, response.status, null));
       } else {
-        response.json().then((err) => callback(null, response.status, err));
+        return response.text().then((text) => {
+          try {
+            // Parse error JSON only if response is not empty
+            const err = text ? JSON.parse(text) : {};
+            callback(null, response.status, err);
+          } catch (error) {
+            throw new SyntaxError("Failed to parse error response JSON");
+          }
+        });
       }
     })
-
     .catch(function(err) {
-      //catch any other unexpected error, and set custom code for error = 1
+      // Catch any unexpected errors
       callback(null, 1, err);
     });
 }

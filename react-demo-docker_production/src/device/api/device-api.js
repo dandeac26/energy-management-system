@@ -26,9 +26,9 @@ function updateDevice(id, device, callback) {
     {
       method: "PUT",
       headers: {
+        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(device),
     }
@@ -71,12 +71,13 @@ function getDeviceById(params, callback) {
 }
 
 function postDevice(user, callback) {
+  console.log("sth");
   let request = new Request(HOST.backend_device_api + endpoint.device, {
     method: "POST",
     headers: {
+      Authorization: `Bearer ${token}`,
       Accept: "application/json",
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(user),
   });
