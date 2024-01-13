@@ -11,13 +11,13 @@ public class UsersIdsBuilder {
 
     }
     public static UsersIdsDTO toUsersIdsDTO(UsersIds usersIds){
-        return new UsersIdsDTO(usersIds.getId(), usersIds.getUserId());
+        return new UsersIdsDTO(usersIds.getId(), usersIds.getUserId(), usersIds.getUsername());
     }
     public static UsersIdsDetailsDTO toUsersIdsDetailsDTO(UsersIds usersIds) {
-        return new UsersIdsDetailsDTO(usersIds.getId(), usersIds.getUserId());
+        return new UsersIdsDetailsDTO(usersIds.getId(), usersIds.getUserId(), usersIds.getUsername());
     }
     public static UsersIds toEntity(UsersIdsDetailsDTO usersIdsDetailsDTO) {
-        return new UsersIds(usersIdsDetailsDTO.getUserId());
+        return new UsersIds(usersIdsDetailsDTO.getUserId(), usersIdsDetailsDTO.getUsername());
 
     }
 }

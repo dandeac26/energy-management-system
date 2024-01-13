@@ -4,7 +4,7 @@ import RestApiClient from "../../commons/api/rest-client";
 const endpoint = {
   user: "/user",
   authentication: "/authenticate",
-  insertUserId: "/device/insertUserId",
+  insertUserIdEP: "/device/insertUserId",
 };
 
 function getUsers(callback) {
@@ -39,14 +39,14 @@ function updateUser(id, user, callback) {
   RestApiClient.performRequest(request, callback);
 }
 
-function insertUserId(userId, callback) {
-  let request = new Request(HOST.backend_device_api + endpoint.insertUserId, {
+function insertUserId(DeviceUser, callback) {
+  let request = new Request(HOST.backend_device_api + endpoint.insertUserIdEP, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(userId),
+    body: JSON.stringify(DeviceUser),
   });
 
   console.log("URL: " + request.url);
@@ -66,8 +66,31 @@ function postUser(user, callback) {
 
   console.log("URL: " + request.url);
 
-  RestApiClient.performRequest(request, callback);
-  insertUserId(user.id);
+  // RestApiClient.performRequest(request, callback);
+
+  // let DevicesUser = {
+  //   userId: request.body.UserId,
+  //   username: user.name,
+  // };
+  // insertUserId(DevicesUser);
+
+  RestApiClient.performRequest(request, function(response, status, error) {
+    if (!error && response) {
+      // Assuming the UUID is returned directly in the response
+      let userId = response;
+
+      let devicesUser = {
+        userId: userId,
+        username: user.name,
+      };
+      insertUserId(devicesUser);
+    }
+
+    // Call the original callback if provided
+    if (callback) {
+      callback(response, status, error);
+    }
+  });
 }
 
 function authenticateUser(user, callback) {

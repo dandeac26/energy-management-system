@@ -29,8 +29,9 @@ public class UsersIdsService {
     public UUID insertUserId(UsersIdsDetailsDTO usersIdsDTO) {
         UsersIds usersIds = UsersIdsBuilder.toEntity(usersIdsDTO);
         usersIds = usersIdsRepository.save(usersIds);
+        System.out.println("User " + usersIds.getUsername() + " with id "+ usersIds.getUserId() +" was inserted in db");
         LOGGER.debug("UsersIds with id {} was inserted in db", usersIds.getId());
-        return usersIds.getId();
+        return usersIds.getUserId();
     }
 
     public void deleteUserId(UUID userId) {

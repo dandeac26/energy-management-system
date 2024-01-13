@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ro.tuc.ds2020.dtos.DeviceDTO;
 import ro.tuc.ds2020.dtos.DeviceDetailsDTO;
@@ -13,6 +15,7 @@ import ro.tuc.ds2020.services.DeviceService;
 import ro.tuc.ds2020.services.UsersIdsService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,12 +39,34 @@ public class DeviceController {
         this.usersIdsService = usersIdsService;
     }
 
+//    @GetMapping()
+//    public ResponseEntity<List<DeviceDTO>> getDevices() {
+//        List<DeviceDTO> dtos = deviceService.findDevices();
+//        for (DeviceDTO dto : dtos) {
+//            Link deviceLink = linkTo(methodOn(DeviceController.class)
+//                    .getDevice(dto.getId())).withRel("deviceDetails");
+//            dto.add(deviceLink);
+//        }
+//        return new ResponseEntity<>(dtos, HttpStatus.OK);
+//    }
+
+
     @GetMapping()
     public ResponseEntity<List<DeviceDTO>> getDevices() {
-        List<DeviceDTO> dtos = deviceService.findDevices();
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        List<DeviceDTO> dtos;
+
+        if (isAdmin) {
+            dtos = deviceService.findDevices();
+        } else {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//            dtos = deviceService.findDevicesByUsername(username);
+            dtos = deviceService.findDevices();
+        }
+
         for (DeviceDTO dto : dtos) {
-            Link deviceLink = linkTo(methodOn(DeviceController.class)
-                    .getDevice(dto.getId())).withRel("deviceDetails");
+            Link deviceLink = linkTo(methodOn(DeviceController.class).getDevice(dto.getId())).withRel("deviceDetails");
             dto.add(deviceLink);
         }
         return new ResponseEntity<>(dtos, HttpStatus.OK);
@@ -67,8 +92,6 @@ public class DeviceController {
         DeviceDetailsDTO dto = deviceService.findDeviceById(deviceId);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
-
-    //TODO: UPDATE, DELETE per resource
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<UUID> updateDevice(@PathVariable("id") UUID deviceId, @Valid @RequestBody DeviceDetailsDTO updatedDeviceDTO) {
@@ -126,10 +149,10 @@ public class DeviceController {
     }
     @DeleteMapping("/client")
     public String accessDelUser(){
-        return "accessed POST client";
+        return "accessed DEL client";
     }
-    @PutMapping("/client")
+    @PutMapping("/client/put")
     public String accessPUTUser(){
-        return "accessed POST client";
+        return "accessed PUt client";
     }
 }

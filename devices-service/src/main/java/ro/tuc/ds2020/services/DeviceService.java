@@ -1,6 +1,7 @@
 package ro.tuc.ds2020.services;
 
 import jakarta.transaction.Transactional;
+import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,11 +115,22 @@ public class DeviceService {
         LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
     }
 
-//        Optional<Device> prosumerOptional = deviceRepository.findDevicesByUserId(userId);
-//        if (!prosumerOptional.isPresent()) {
-//            LOGGER.error("Device with id {} was not found in db", userId);
-//            throw new ResourceNotFoundException(Device.class.getSimpleName() + " with id: " + userId);
+//    public List<DeviceDTO> findDevicesByUsername(String username) {
+//        // Assuming a UserRepository exists to fetch user details
+//        Optional<User> userOptional = userRepository.findByUsername(username);
+//
+//        if (!userOptional.isPresent()) {
+//            LOGGER.error("User with username {} was not found in db", username);
+//            throw new ResourceNotFoundException("User with username: " + username);
 //        }
-//        return DeviceBuilder.toDeviceDetailsDTO(prosumerOptional.get());
+//
+//        UUID userId = userOptional.get().getId();
+//        List<Device> deviceList = deviceRepository.findDevicesByUserId(userId);
+//        return deviceList.stream()
+//                .map(DeviceBuilder::toDeviceDTO)
+//                .collect(Collectors.toList());
+//    }
+
+
 
 }
