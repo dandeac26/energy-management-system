@@ -100,27 +100,22 @@ public class DeviceService {
     }
 
     private void sendMessageToDeviceDeletion(UUID deviceId) {
-        // Prepare the message payload in JSON format
         String jsonMessage = "{\"operation\":\"delete\",\"deviceId\":\"" + deviceId.toString() + "\"}";
 
-        // Publish the message to the "Sync" queue
         rabbitTemplate.convertAndSend("SyncExchange", "Sync", jsonMessage);
         System.out.println("MESSAGE SENT!!!:" + jsonMessage);
         LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
     }
 
     private void sendMessageToDeviceInsertion(UUID deviceId, int hourlyMaxConsumption) {
-        // Prepare the message payload in JSON format
         String jsonMessage = "{\"operation\":\"insert\",\"deviceId\":\"" + deviceId.toString() + "\",\"max_measurement\":\"" + hourlyMaxConsumption + "\"}";
 
-        // Publish the message to the "Sync" queue
         rabbitTemplate.convertAndSend("SyncExchange", "Sync", jsonMessage);
         System.out.println("MESSAGE SENT!!!:" + jsonMessage);
         LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
     }
 
     public List<DeviceDTO> findDevicesByUsername(String username) {
-        // Assuming a UserRepository exists to fetch user details
         Optional<UsersIds> userOptional = usersIdsRepository.findByUsername(username);
 
         if (!userOptional.isPresent()) {
@@ -134,7 +129,4 @@ public class DeviceService {
                 .map(DeviceBuilder::toDeviceDTO)
                 .collect(Collectors.toList());
     }
-
-
-
 }

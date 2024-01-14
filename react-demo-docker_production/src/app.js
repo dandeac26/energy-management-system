@@ -60,6 +60,7 @@ import Login from "./login/login.js";
 import PrivateRoute from "./user/private-route.js";
 import Profile from "./profile/profile.js";
 import DeviceChart from "./device/device-chart.js"; // Import the DeviceChart component
+import LoginWrapper from "./login/login-wrapper.js";
 
 function App() {
   return (
@@ -70,10 +71,27 @@ function App() {
           <NavigationBar />
           <Routes>
             <Route exact path="/" element={<Home />} />
-            <Route exact path="/user" element={<UserContainer />} />
-            <Route exact path="/device" element={<DeviceContainer />} />
+            {/* <Route exact path="/user" element={<UserContainer />} /> */}
+            <Route
+              path="/user"
+              element={
+                <PrivateRoute requiredRole="ADMIN">
+                  <UserContainer />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              exact
+              path="/device"
+              element={
+                <PrivateRoute>
+                  <DeviceContainer />
+                </PrivateRoute>
+              }
+            />
             <Route path="/device-chart/:deviceId" element={<DeviceChart />} />
-            <Route exact path="/login" element={<Login />} />
+            {/* <Route exact path="/login" element={<Login />} /> */}
+            <Route exact path="/login" element={<LoginWrapper />} />
             <Route exact path="/error" element={<ErrorPage />} />
 
             {/* PrivateRoute needs to be adjusted for v6 */}

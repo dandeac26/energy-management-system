@@ -1,6 +1,5 @@
 package ro.tuc.ds2020.dtos;
 
-import ro.tuc.ds2020.dtos.validators.annotation.AgeLimit;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -13,8 +12,7 @@ public class DeviceDetailsDTO {
     private String description;
     @NotNull
     private String address;
-    //    @HourlyMaxConsumptionLimit(limit = 1)// shouldnt this be 17? cuz 18 is not allowed
-//    @NotNull
+
     private int hourlyMaxConsumption;
 
     @NotNull

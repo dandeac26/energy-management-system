@@ -44,5 +44,4 @@ public class UsersIdsService {
             throw new ResourceNotFoundException(Device.class.getSimpleName() + " with id: " + userId);
         }
     }
-
 }

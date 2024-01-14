@@ -35,7 +35,7 @@ public class JwtUtil {
             System.out.println("Token validated!\n");
             return true;
         }catch(SignatureException ex){
-            // Log the exception
+//            System.out.println("Token NOT validated!\n");
         }
         System.out.println("\nVALIDATION FAILED!!!\n");
         return false;

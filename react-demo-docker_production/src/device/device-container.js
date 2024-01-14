@@ -28,7 +28,7 @@ function DeviceContainer(props) {
   // componentDidMount
   useEffect(() => {
     fetchDevices();
-  }, []);
+  }, [localStorage.getItem("authenticatedUser")]);
 
   function fetchDevices() {
     return API_USERS.getDevices((result, status, err) => {

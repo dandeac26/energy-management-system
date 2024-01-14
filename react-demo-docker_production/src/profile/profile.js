@@ -99,9 +99,9 @@ function Profile(props) {
   return (
     <div>
       <CardHeader>
-        <strong> Your Devices </strong>
+        <strong> YOUR PROFILE! </strong>
       </CardHeader>
-      <Card>
+      {/* <Card>
         <br />
         <Row>
           <Col sm={{ size: "8", offset: 1 }}>
@@ -127,14 +127,14 @@ function Profile(props) {
             )}
           </Col>
         </Row>
-      </Card>
+      </Card> */}
 
-      <Modal isOpen={isSelected} toggle={toggleForm} size="lg">
+      {/* <Modal isOpen={isSelected} toggle={toggleForm} size="lg">
         <ModalHeader toggle={toggleForm}> Add Device: </ModalHeader>
         <ModalBody>
           <DeviceForm reloadHandler={reload} />
         </ModalBody>
-      </Modal>
+      </Modal> */}
     </div>
   );
 }

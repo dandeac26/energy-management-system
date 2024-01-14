@@ -24,14 +24,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:3003")
 @RequestMapping(value = "/device")
 public class DeviceController {
 
     private final DeviceService deviceService;
     private final UsersIdsService usersIdsService;
-//    @Autowired
-//    private DeviceRepository deviceRepository;
 
     @Autowired
     public DeviceController(DeviceService deviceService, UsersIdsService usersIdsService) {
@@ -39,22 +36,10 @@ public class DeviceController {
         this.usersIdsService = usersIdsService;
     }
 
-//    @GetMapping()
-//    public ResponseEntity<List<DeviceDTO>> getDevices() {
-//        List<DeviceDTO> dtos = deviceService.findDevices();
-//        for (DeviceDTO dto : dtos) {
-//            Link deviceLink = linkTo(methodOn(DeviceController.class)
-//                    .getDevice(dto.getId())).withRel("deviceDetails");
-//            dto.add(deviceLink);
-//        }
-//        return new ResponseEntity<>(dtos, HttpStatus.OK);
-//    }
-
-
     @GetMapping()
     public ResponseEntity<List<DeviceDTO>> getDevices() {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ADMIN"));
         List<DeviceDTO> dtos;
 
         if (isAdmin) {
@@ -62,7 +47,6 @@ public class DeviceController {
         } else {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             dtos = deviceService.findDevicesByUsername(username);
-//            dtos = deviceService.findDevices();
         }
 
         for (DeviceDTO dto : dtos) {
@@ -108,8 +92,6 @@ public class DeviceController {
 
     @GetMapping(value = "/userDevices/{userId}")
     public ResponseEntity<List<DeviceDTO>> getDevicesByUserId(@PathVariable("userId") UUID userId) {
-//        DeviceDetailsDTO dto = deviceService.findDevicesByUserId(userId);
-//        return new ResponseEntity<>(dto, HttpStatus.OK);
         List<DeviceDTO> dtos = deviceService.findDevicesByUserId(userId);
         for (DeviceDTO dto : dtos) {
             Link deviceLink = linkTo(methodOn(DeviceController.class)
@@ -117,42 +99,5 @@ public class DeviceController {
             dto.add(deviceLink);
         }
         return new ResponseEntity<>(dtos, HttpStatus.OK);
-    }
-//    @GetMapping("/user/{userId}/devices")
-//    public ResponseEntity<List<DeviceDTO>> getDevicesForUser(@PathVariable String userId) {
-//        List<Device> devices = deviceRepository.findDevicesByUserId(userId);
-//
-//        if (devices.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//
-//        // You may need to convert the Device objects to DeviceDTO if they have different structures.
-//        List<DeviceDTO> deviceDTOs = convertToDTOs(devices);
-//
-//        return new ResponseEntity<>(deviceDTOs, HttpStatus.OK);
-//    }
-
-    @GetMapping("/secured")
-    public String securedEndpoint(){return "Secured endpoint accessed";}
-
-    @GetMapping("/admin")
-    public String accessAdmin(){return "Accessed admin";}
-
-    @GetMapping("/client")
-    public String accessUser(){
-        return "accessed client";
-    }
-
-    @PostMapping("/client")
-    public String accessPOSTUser(){
-        return "accessed POST client";
-    }
-    @DeleteMapping("/client")
-    public String accessDelUser(){
-        return "accessed DEL client";
-    }
-    @PutMapping("/client/put")
-    public String accessPUTUser(){
-        return "accessed PUt client";
     }
 }

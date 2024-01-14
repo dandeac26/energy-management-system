@@ -73,43 +73,22 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    @PostMapping("/authenticate")
-//    public ResponseEntity<?> authenticateUser(@RequestBody UserDetailsDTO userDTO) {
-//        UserDTO authenticatedUser = userService.authenticate(userDTO);
-//
-//        if (authenticatedUser != null) {
-//            return new ResponseEntity<>(authenticatedUser, HttpStatus.OK);
-//        } else {
-//            System.out.printf("authfail");
-//            return new ResponseEntity<>("Authentication failed", HttpStatus.UNAUTHORIZED);
-//        }
-//    }
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
+        UserDetailsDTO userDTO = new UserDetailsDTO(authRequest.getUsername(), authRequest.getPassword());
 
-//    @PostMapping("/authenticate")
-//    public JwtResponse createToken(@RequestBody AuthRequest authRequest){
-//        System.out.println(authRequest.getUsername());
-//        if("user".equals(authRequest.getUsername()) && "password".equals(authRequest.getPassword())){
-//            List<String> userRoles = new ArrayList<>();
-//            userRoles.add("ROLE_CLIENT");
-//            String jwt = jwtUtil.generateToken(authRequest.getUsername(), userRoles);
-//            return new JwtResponse(jwt);
-//        }
-//        throw new RuntimeException("credentials are invalid");
-//    }
-@PostMapping("/authenticate")
-public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
-    UserDetailsDTO userDTO = new UserDetailsDTO(authRequest.getUsername(), authRequest.getPassword());
+        Optional<UserDTO> optionalUserDTO = userService.authenticate(userDTO);
 
-    Optional<UserDTO> optionalUserDTO = userService.authenticate(userDTO);
-
-    if (optionalUserDTO.isPresent()) {
-        UserDTO authenticatedUser = optionalUserDTO.get();
-        List<String> roles = Collections.singletonList(authenticatedUser.getRole().toUpperCase());
-        String jwt = jwtUtil.generateToken(authenticatedUser.getName(), roles);
-        return ResponseEntity.ok(new JwtResponse(jwt, authenticatedUser.getName(), roles));
-    } else {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        if (optionalUserDTO.isPresent()) {
+            UserDTO authenticatedUser = optionalUserDTO.get();
+            List<String> roles = Collections.singletonList(authenticatedUser.getRole().toUpperCase());
+            String jwt = jwtUtil.generateToken(authenticatedUser.getName(), roles);
+            return ResponseEntity.ok(new JwtResponse(jwt, authenticatedUser.getName(), roles));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid credentials"));
+        }
     }
-}
 
 }

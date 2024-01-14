@@ -10,6 +10,9 @@ const userData = JSON.parse(localStorage.getItem("authenticatedUser"));
 const token = userData && userData.token ? userData.token : "";
 
 function getDevices(callback) {
+  let userData = JSON.parse(localStorage.getItem("authenticatedUser"));
+  let token = userData && userData.token ? userData.token : "";
+
   let request = new Request(HOST.backend_device_api + endpoint.device, {
     method: "GET",
     headers: {
