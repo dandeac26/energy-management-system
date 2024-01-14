@@ -61,8 +61,8 @@ public class DeviceController {
             dtos = deviceService.findDevices();
         } else {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//            dtos = deviceService.findDevicesByUsername(username);
-            dtos = deviceService.findDevices();
+            dtos = deviceService.findDevicesByUsername(username);
+//            dtos = deviceService.findDevices();
         }
 
         for (DeviceDTO dto : dtos) {

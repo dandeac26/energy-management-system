@@ -7,6 +7,11 @@ const endpoint = {
   insertUserIdEP: "/device/insertUserId",
 };
 
+const userData = JSON.parse(localStorage.getItem("authenticatedUser"));
+
+// Check if the userData and token exist
+const token = userData && userData.token ? userData.token : "";
+
 function getUsers(callback) {
   let request = new Request(HOST.backend_api + endpoint.user, {
     method: "GET",
@@ -45,14 +50,64 @@ function insertUserId(DeviceUser, callback) {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(DeviceUser),
   });
 
   console.log("URL: " + request.url);
 
-  RestApiClient.performRequest(request, callback);
+  // Check if callback is a function, otherwise pass a no-op function
+  RestApiClient.performRequest(
+    request,
+    typeof callback === "function" ? callback : () => {}
+  );
 }
+
+// function insertUserId(DeviceUser, callback) {
+//   let request = new Request(HOST.backend_device_api + endpoint.insertUserIdEP, {
+//     method: "POST",
+//     headers: {
+//       Accept: "application/json",
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(DeviceUser),
+//   });
+
+//   console.log("URL: " + request.url);
+
+//   RestApiClient.performRequest(request, callback);
+// }
+
+// function postUser(user, callback) {
+//   let request = new Request(HOST.backend_api + endpoint.user, {
+//     method: "POST",
+//     headers: {
+//       Accept: "application/json",
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(user),
+//   });
+
+//   console.log("URL: " + request.url);
+
+//   RestApiClient.performRequest(request, function(response, status, error) {
+//     if (!error && response) {
+//       let userId = response;
+
+//       let devicesUser = {
+//         userId: userId,
+//         username: user.name,
+//       };
+//       insertUserId(devicesUser);
+//     }
+
+//     if (callback) {
+//       callback(response, status, error);
+//     }
+//   });
+// }
 
 function postUser(user, callback) {
   let request = new Request(HOST.backend_api + endpoint.user, {
@@ -66,28 +121,25 @@ function postUser(user, callback) {
 
   console.log("URL: " + request.url);
 
-  // RestApiClient.performRequest(request, callback);
-
-  // let DevicesUser = {
-  //   userId: request.body.UserId,
-  //   username: user.name,
-  // };
-  // insertUserId(DevicesUser);
-
   RestApiClient.performRequest(request, function(response, status, error) {
     if (!error && response) {
-      // Assuming the UUID is returned directly in the response
       let userId = response;
 
       let devicesUser = {
         userId: userId,
         username: user.name,
       };
-      insertUserId(devicesUser);
+      // Call insertUserId with a proper callback or without one
+      insertUserId(devicesUser, function(
+        insertResponse,
+        insertStatus,
+        insertError
+      ) {
+        // Handle the response from insertUserId here, if needed
+      });
     }
 
-    // Call the original callback if provided
-    if (callback) {
+    if (typeof callback === "function") {
       callback(response, status, error);
     }
   });

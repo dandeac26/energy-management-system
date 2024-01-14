@@ -1,35 +1,29 @@
 function performRequest(request, callback) {
+  // Check if callback is a function
+  if (typeof callback !== "function") {
+    console.error("Callback provided to performRequest is not a function");
+    return;
+  }
+
   fetch(request)
     .then(function(response) {
       if (response.status === 204) {
-        // No content
         callback(null, response.status, null);
       } else if (response.ok) {
         return response
           .text()
           .then((text) => {
-            try {
-              // Parse JSON only if response is not empty
-              return text ? JSON.parse(text) : {};
-            } catch (error) {
-              throw new SyntaxError("Failed to parse JSON");
-            }
+            return text ? JSON.parse(text) : {};
           })
           .then((json) => callback(json, response.status, null));
       } else {
         return response.text().then((text) => {
-          try {
-            // Parse error JSON only if response is not empty
-            const err = text ? JSON.parse(text) : {};
-            callback(null, response.status, err);
-          } catch (error) {
-            throw new SyntaxError("Failed to parse error response JSON");
-          }
+          const err = text ? JSON.parse(text) : {};
+          callback(null, response.status, err);
         });
       }
     })
     .catch(function(err) {
-      // Catch any unexpected errors
       callback(null, 1, err);
     });
 }

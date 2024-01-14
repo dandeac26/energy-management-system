@@ -12,6 +12,7 @@ import ro.tuc.ds2020.dtos.DeviceDTO;
 import ro.tuc.ds2020.dtos.DeviceDetailsDTO;
 import ro.tuc.ds2020.dtos.builders.DeviceBuilder;
 import ro.tuc.ds2020.entities.Device;
+import ro.tuc.ds2020.entities.UsersIds;
 import ro.tuc.ds2020.repositories.DeviceRepository;
 
 import java.util.List;
@@ -19,16 +20,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import ro.tuc.ds2020.repositories.UsersIdsRepository;
 
 @Service
 public class DeviceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceService.class);
     private final DeviceRepository deviceRepository;
+    private final UsersIdsRepository usersIdsRepository;
     private final RabbitTemplate rabbitTemplate;
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository, RabbitTemplate rabbitTemplate) {
+    public DeviceService(DeviceRepository deviceRepository, RabbitTemplate rabbitTemplate,UsersIdsRepository usersIdsRepository) {
         this.deviceRepository = deviceRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.usersIdsRepository = usersIdsRepository;
     }
 
     public List<DeviceDTO> findDevices() {
@@ -115,21 +119,21 @@ public class DeviceService {
         LOGGER.debug("Message sent to RabbitMQ: {}", jsonMessage);
     }
 
-//    public List<DeviceDTO> findDevicesByUsername(String username) {
-//        // Assuming a UserRepository exists to fetch user details
-//        Optional<User> userOptional = userRepository.findByUsername(username);
-//
-//        if (!userOptional.isPresent()) {
-//            LOGGER.error("User with username {} was not found in db", username);
-//            throw new ResourceNotFoundException("User with username: " + username);
-//        }
-//
-//        UUID userId = userOptional.get().getId();
-//        List<Device> deviceList = deviceRepository.findDevicesByUserId(userId);
-//        return deviceList.stream()
-//                .map(DeviceBuilder::toDeviceDTO)
-//                .collect(Collectors.toList());
-//    }
+    public List<DeviceDTO> findDevicesByUsername(String username) {
+        // Assuming a UserRepository exists to fetch user details
+        Optional<UsersIds> userOptional = usersIdsRepository.findByUsername(username);
+
+        if (!userOptional.isPresent()) {
+            LOGGER.error("User with username {} was not found in db", username);
+            throw new ResourceNotFoundException("User with username: " + username);
+        }
+
+        UUID userId = userOptional.get().getUserId();
+        List<Device> deviceList = deviceRepository.findDevicesByUserId(userId);
+        return deviceList.stream()
+                .map(DeviceBuilder::toDeviceDTO)
+                .collect(Collectors.toList());
+    }
 
 
 
