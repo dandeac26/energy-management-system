@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Login from "./login"; // Replace with your actual class component import
+import Login from "./login";
 
 const LoginWrapper = (props) => {
   const navigate = useNavigate();

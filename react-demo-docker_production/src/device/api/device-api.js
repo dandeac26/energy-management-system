@@ -43,7 +43,6 @@ function updateDevice(id, device, callback) {
 }
 
 function getUserDevices(userId, callback) {
-  // Construct the GET request URL with the user's ID
   let request = new Request(
     `${HOST.backend_device_api}${endpoint.device}/userDevices/${userId}`,
     {

@@ -9,12 +9,6 @@ import APIResponseErrorMessage from "../../commons/errorhandling/api-response-er
 
 const validRoles = ["client", "admin"];
 const formControlsInit = {
-  // id: {
-  //   value: "",
-  //   placeholder: "Id...",
-  //   valid: false,
-  //   touched: false,
-  // },
   name: {
     value: "",
     placeholder: "What is your name?...",
@@ -45,7 +39,7 @@ const formControlsInit = {
       if (!validRoles.includes(value)) {
         return "The value must be either 'client' or 'admin'.";
       }
-      return null; // Return null to indicate a valid value
+      return null;
     },
   },
 };
@@ -57,12 +51,7 @@ function UserForm(props) {
 
   useEffect(() => {
     if (props.isUpdating) {
-      // Populate the form fields with the updated data
       setFormControls({
-        // id: {
-        //   ...formControls.id,
-        //   value: props.updatedData.id,
-        // },
         name: {
           ...formControls.name,
           value: props.updatedData.name,
@@ -70,7 +59,6 @@ function UserForm(props) {
 
         password: {
           ...formControls.password,
-          // value: props.updatedData.password,
         },
         role: {
           ...formControls.role,
@@ -78,7 +66,6 @@ function UserForm(props) {
         },
       });
     } else {
-      // Reset the form fields to their initial state when not in update mode
       setFormControls(formControlsInit);
     }
   }, [props.isUpdating, props.updatedData]);
@@ -122,7 +109,6 @@ function UserForm(props) {
 
   function handleSubmit() {
     let user = {
-      // id: props.updatedData.id,
       name: formControls.name.value,
       password: formControls.password.value,
       role: formControls.role.value,
@@ -132,7 +118,6 @@ function UserForm(props) {
 
   function handleUpdateSubmit() {
     let user = {
-      // id: props.updatedData.id,
       name: formControls.name.value,
       password: formControls.password.value,
       role: formControls.role.value,
@@ -150,23 +135,6 @@ function UserForm(props) {
 
   return (
     <div>
-      {/* <FormGroup id="id">
-        <Label for="idField"> Id: </Label>
-        <Input
-          name="id"
-          id="idField"
-          placeholder={formControls.id.placeholder}
-          onChange={handleChange}
-          defaultValue={formControls.id.value}
-          touched={formControls.id.touched ? 1 : 0}
-          valid={formControls.id.valid}
-          required
-        />
-        {formControls.id.touched && !formControls.id.valid && (
-          <div className={"error-message"}> * Id must have a valid format</div>
-        )}
-      </FormGroup> */}
-
       <FormGroup id="name">
         <Label for="nameField"> Name: </Label>
         <Input

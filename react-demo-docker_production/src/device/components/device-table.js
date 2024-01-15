@@ -5,8 +5,6 @@ import Table from "../../commons/tables/table";
 import * as API_USERS from "../api/device-api";
 import { useNavigate } from "react-router-dom";
 
-// import {fetchDevices(), onDelete()} from "./device/device-container";
-
 function DeviceTable(props) {
   const navigate = useNavigate();
 
@@ -14,7 +12,7 @@ function DeviceTable(props) {
   const [tableData, setTableData] = useState(props.tableData);
 
   const [isSelected, setIsSelected] = useState(false);
-  // const [tableData, setTableData] = useState([]);
+
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [isDeleted, setIsDeleted] = useState(false);
@@ -30,8 +28,7 @@ function DeviceTable(props) {
     return API_USERS.deleteDevice(id, (result, status, err) => {
       if (status === 204) {
         console.log("Successfully deleted device with id: " + id);
-        // props.fetchDevices(); // Call the fetchDevices function from the props
-        // props.onDelete(); // Step 4: Notify delete operation
+
         window.location.reload();
       } else {
         setError({ status: status, errorMessage: err });
@@ -50,7 +47,6 @@ function DeviceTable(props) {
     setIsLoaded(false);
     setIsDeleted(false); // Reset the delete operation flag
     toggleForm();
-    // fetchDevices();
   }
   const columns = [
     {
@@ -81,7 +77,6 @@ function DeviceTable(props) {
               toggleForm();
               handleUpdate(row.original);
             }}
-            // onClick={() => handleUpdate(row.original)}
           >
             Update
           </Button>

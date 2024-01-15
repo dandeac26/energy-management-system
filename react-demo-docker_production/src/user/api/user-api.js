@@ -9,7 +9,6 @@ const endpoint = {
 
 const userData = JSON.parse(localStorage.getItem("authenticatedUser"));
 
-// Check if the userData and token exist
 const token = userData && userData.token ? userData.token : "";
 
 function getUsers(callback) {
@@ -57,57 +56,11 @@ function insertUserId(DeviceUser, callback) {
 
   console.log("URL: " + request.url);
 
-  // Check if callback is a function, otherwise pass a no-op function
   RestApiClient.performRequest(
     request,
     typeof callback === "function" ? callback : () => {}
   );
 }
-
-// function insertUserId(DeviceUser, callback) {
-//   let request = new Request(HOST.backend_device_api + endpoint.insertUserIdEP, {
-//     method: "POST",
-//     headers: {
-//       Accept: "application/json",
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: JSON.stringify(DeviceUser),
-//   });
-
-//   console.log("URL: " + request.url);
-
-//   RestApiClient.performRequest(request, callback);
-// }
-
-// function postUser(user, callback) {
-//   let request = new Request(HOST.backend_api + endpoint.user, {
-//     method: "POST",
-//     headers: {
-//       Accept: "application/json",
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(user),
-//   });
-
-//   console.log("URL: " + request.url);
-
-//   RestApiClient.performRequest(request, function(response, status, error) {
-//     if (!error && response) {
-//       let userId = response;
-
-//       let devicesUser = {
-//         userId: userId,
-//         username: user.name,
-//       };
-//       insertUserId(devicesUser);
-//     }
-
-//     if (callback) {
-//       callback(response, status, error);
-//     }
-//   });
-// }
 
 function postUser(user, callback) {
   let request = new Request(HOST.backend_api + endpoint.user, {
@@ -129,14 +82,12 @@ function postUser(user, callback) {
         userId: userId,
         username: user.name,
       };
-      // Call insertUserId with a proper callback or without one
+
       insertUserId(devicesUser, function(
         insertResponse,
         insertStatus,
         insertError
-      ) {
-        // Handle the response from insertUserId here, if needed
-      });
+      ) {});
     }
 
     if (typeof callback === "function") {
@@ -146,7 +97,6 @@ function postUser(user, callback) {
 }
 
 function authenticateUser(user, callback) {
-  // Make a POST request to authenticate the user using the authentication endpoint
   let request = new Request(
     HOST.backend_api + endpoint.user + endpoint.authentication,
     {
@@ -171,7 +121,6 @@ function deleteUser(id, callback) {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    // body: JSON.stringify(user)
   });
 
   console.log("URL: " + request.url);

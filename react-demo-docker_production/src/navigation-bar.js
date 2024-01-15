@@ -28,15 +28,81 @@ const textStyle = {
   textDecoration: "none",
 };
 
+const ChatMessage = ({ msg, onSeen }) => {
+  const userDataString = localStorage.getItem("authenticatedUser");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+  const ref = useRef();
+  const [hasMarkedSeen, setHasMarkedSeen] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          !msg.seen &&
+          !hasMarkedSeen &&
+          msg.sender !== userData.username
+        ) {
+          onSeen(msg.id, msg.sender);
+          setHasMarkedSeen(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [msg, onSeen, hasMarkedSeen, userData.username]);
+
+  return (
+    <div
+      ref={ref}
+      key={msg.id}
+      style={{
+        textAlign: msg.sender === userData.username ? "right" : "left",
+        margin: "5px",
+      }}
+    >
+      <span
+        style={{
+          backgroundColor:
+            msg.sender === userData.username ? "#e0e0e0" : "#f0f0f0",
+          borderRadius: "10px",
+          padding: "10px 15px",
+          display: "inline-block",
+          maxWidth: "80%",
+        }}
+      >
+        {msg.text}
+
+        {msg.sender === userData.username && msg.seen && (
+          <span
+            style={{ marginLeft: "10px", color: "#01A7F4", fontSize: "12pt" }}
+          >
+            &#10004;&#10004; {/* Unicode for checkmarks */}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+};
+
 function NavigationBar() {
   const [modal, setModal] = React.useState(false);
   const [currentMessage, setCurrentMessage] = React.useState("");
   const [messages, setMessages] = React.useState([]);
   const [stompClient, setStompClient] = React.useState(null);
   const messagesEndRef = useRef(null);
-  const [activeTab, setActiveTab] = useState("0");
-  const [activeChats, setActiveChats] = useState({}); // Stores active chats with users
-  const [selectedChat, setSelectedChat] = useState("John"); // Stores the currently selected chat
+  const [activeChats, setActiveChats] = useState({ admin: { messages: [] } }); // Stores active chats with users
+  const [selectedChat, setSelectedChat] = useState("admin"); // Stores the currently selected chat
   const userDataString = localStorage.getItem("authenticatedUser");
   const userData = userDataString ? JSON.parse(userDataString) : null;
   const isAdmin =
@@ -53,23 +119,6 @@ function NavigationBar() {
   function isUserAuthenticated() {
     const userData = localStorage.getItem("authenticatedUser");
     return userData !== null;
-  }
-
-  function sendSeenMessages(user) {
-    console.log("ENTERED");
-    if (stompClient) {
-      console.log("the seen msg sent!");
-      const newMessage = {
-        id: uuidv4(),
-        sender: userData.username,
-        destination: user, // Admin sends to selected user, client sends to admin
-        text: "seen",
-        seen: true,
-        role: userData.roles[0],
-      };
-      stompClient.send("/app/send", {}, JSON.stringify(newMessage));
-      setCurrentMessage("");
-    }
   }
 
   useEffect(() => {
@@ -92,41 +141,16 @@ function NavigationBar() {
 
   const toggleModal = () => {
     setModal(!modal);
-    modalRef.current = !modal; // Update the ref's current value whenever modal changes
+    modalRef.current = !modal;
   };
 
   const connect = () => {
-    // Mock connection to WebSocket
     const socket = new SockJS("http://localhost:8088/websocket-endpoint");
     const client = Stomp.over(socket);
 
     client.connect({}, () => {
       client.subscribe("/topic/messages", (message) => {
         const receivedMessage = JSON.parse(message.body);
-        console.log(
-          "username: " +
-            userData.username +
-            "\n dest: " +
-            receivedMessage.destination +
-            "\n modal: " +
-            modalRef.current +
-            "\n selectedChat: " +
-            selectedChat +
-            "\n sender: " +
-            receivedMessage.sender +
-            "\n msg: " +
-            receivedMessage.text
-        );
-        if (
-          receivedMessage.destination === userData.username &&
-          modalRef.current &&
-          (selectedChat === receivedMessage.sender ||
-            userData.roles[0] === "CLIENT") &&
-          receivedMessage.seen === false
-        ) {
-          sendSeenMessages(receivedMessage.sender);
-          console.log("ENTERED SEND");
-        }
         if (
           receivedMessage.destination === userData.username ||
           receivedMessage.sender === userData.username
@@ -142,17 +166,18 @@ function NavigationBar() {
               updatedChats[chatKey] = { messages: [] };
             }
 
-            // Check if the message already exists based on a unique identifier
-            const messageExists = updatedChats[chatKey].messages.some(
-              (msg) => msg.id === receivedMessage.id // Assuming each message has a unique 'id'
-            );
-
-            if (!messageExists) {
-              if (receivedMessage.seen === true) {
-                // alert("seen");
-              }
+            if (receivedMessage.text === "seen" && receivedMessage.seen) {
+              updatedChats[chatKey].messages = updatedChats[
+                chatKey
+              ].messages.map((msg) =>
+                msg.id === receivedMessage.id ? { ...msg, seen: true } : msg
+              );
+            } else if (
+              !updatedChats[chatKey].messages.some(
+                (msg) => msg.id === receivedMessage.id
+              )
+            ) {
               updatedChats[chatKey].messages.push(receivedMessage);
-              console.log("NEW MESSAGE ADDED: ", receivedMessage);
             }
 
             return updatedChats;
@@ -176,7 +201,7 @@ function NavigationBar() {
       const newMessage = {
         id: uuidv4(),
         sender: userData.username,
-        destination: isAdmin ? selectedChat : "admin", // Admin sends to selected user, client sends to admin
+        destination: isAdmin ? selectedChat : "admin",
         text: currentMessage,
         seen: false,
         role: userData.roles[0],
@@ -186,10 +211,24 @@ function NavigationBar() {
     }
   };
 
+  const markMessageAsSeen = (messageId, sender) => {
+    if (stompClient) {
+      const seenMessage = {
+        id: messageId,
+        sender: userData.username,
+        destination: sender,
+        text: "seen",
+        seen: true,
+        role: userData.roles[0],
+      };
+      stompClient.send("/app/send", {}, JSON.stringify(seenMessage));
+    }
+  };
+
   const modalStyle = {
     maxWidth: "500px",
     height: "600px",
-    overflow: "hidden", // This ensures the modal itself won't grow
+    overflow: "hidden",
   };
   return (
     <div>
@@ -212,7 +251,6 @@ function NavigationBar() {
         </Nav>
         <Nav className="ml-auto" navbar>
           {" "}
-          {/* Move "Login" button to the right */}
           {isUserAuthenticated() && (
             <Button
               style={{ marginRight: "10px", backgroundColor: "gray" }}
@@ -233,26 +271,29 @@ function NavigationBar() {
           >
             <ModalHeader toggle={toggleModal}>Chat</ModalHeader>
             <ModalBody key={selectedChat}>
-              {/*{isAdmin && (*/}
               <Nav tabs>
-                {Object.keys(activeChats).map((user) => (
-                  <NavItem key={user}>
-                    <NavLink
-                      className={classnames({
-                        active: selectedChat === user,
-                      })}
-                      onClick={() => {
-                        console.log("Setting selected chat to user:", user);
-                        setSelectedChat(user);
-                        sendSeenMessages(user);
-                      }}
-                    >
-                      Chat with {user}
-                    </NavLink>
-                  </NavItem>
-                ))}
+                {Object.keys(activeChats).map((user) => {
+                  if (isAdmin && user === "admin") {
+                    return null;
+                  }
+                  return (
+                    <NavItem key={user}>
+                      <NavLink
+                        className={classnames({
+                          active: selectedChat === user,
+                        })}
+                        onClick={() => {
+                          console.log("Setting selected chat to user:", user);
+                          setSelectedChat(user);
+                        }}
+                      >
+                        Chat with {user}
+                      </NavLink>
+                    </NavItem>
+                  );
+                })}
               </Nav>
-              {/* )}  */}
+
               <TabContent activeTab={selectedChat}>
                 {Object.keys(activeChats).map((user) => (
                   <TabPane tabId={user} key={user}>
@@ -262,72 +303,18 @@ function NavigationBar() {
                         maxHeight: "300px",
                         overflowY: "auto",
                         height: "600px",
-                        marginBottom: "30px",
                         paddingBottom: "10px",
                         paddingTop: "10px",
                       }}
                     >
-                      {activeChats[user].messages.map((msg, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            textAlign:
-                              msg.sender === userData.username ||
-                              msg.seen === true
-                                ? "right"
-                                : "left",
-                          }}
-                        >
-                          {msg.seen === false && (
-                            <span
-                              style={{
-                                backgroundColor:
-                                  msg.sender === userData.username
-                                    ? "#e0e0e0"
-                                    : "#f0f0f0",
-                                borderRadius: "10px",
-                                padding: "10px 15px",
-                                display: "inline-block",
-                                maxWidth: "80%",
-                                margin: "5px",
-                              }}
-                            >
-                              {msg.text}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                      {activeChats[user].messages.map((msg, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            textAlign: "right",
-                            display: "block",
-                          }}
-                        >
-                          <p
-                            style={{
-                              backgroundColor: "#FFFFFF",
-                              borderRadius: "1px",
-                              padding: "0px",
-                              display: "block",
-                              maxWidth: "80%",
-                              margin: "0px",
-                              marginRight: "30px",
-                              textAlign: "right",
-                              position: "absolute",
-                              bottom: "100px",
-                              right: "5px",
-                              color:
-                                msg.seen === true && msg.sender === user
-                                  ? "lightblue"
-                                  : "white",
-                            }}
-                          >
-                            {" "}
-                            seen{" "}
-                          </p>
-                        </div>
+                      {activeChats[user].messages.map((msg) => (
+                        <ChatMessage
+                          key={msg.id}
+                          msg={msg}
+                          onSeen={(messageId, sender) =>
+                            markMessageAsSeen(messageId, sender)
+                          }
+                        />
                       ))}
                       <div ref={messagesEndRef} />
                     </div>

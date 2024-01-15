@@ -18,7 +18,6 @@ function DeviceChart() {
         data: [],
         backgroundColor: "rgba(75,192,192,0.4)",
         borderColor: "rgba(75,192,192,1)",
-        // minBarThickness: 100,
         barPercentage: 0.95,
         categoryPercentage: 0.9,
         borderWidth: 1,
@@ -36,9 +35,8 @@ function DeviceChart() {
         );
         console.log(response);
 
-        // Map over the array to create chart data points
         const measurements = response.data.map((measurement) => ({
-          x: new Date(parseInt(measurement.timestamp_value)), // Convert string to number
+          x: new Date(parseInt(measurement.timestamp_value)),
           y: parseFloat(measurement.measurement),
         }));
 
@@ -82,11 +80,10 @@ function DeviceChart() {
               type: "time",
               time: {
                 unit: "minute",
-                // stepSize: 0.3,
+
                 distribution: "linear",
               },
             },
-            // maintainAspectRatio: false,
           },
         }}
       />

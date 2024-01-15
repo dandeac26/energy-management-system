@@ -22,14 +22,11 @@ function UserContainer(props) {
   const [isDeleted, setIsDeleted] = useState(false);
 
   function handleDeleteCallback() {
-    setIsDeleted(true); // Step 2: Notify delete operation
+    setIsDeleted(true);
   }
-  // Store error status and message in the same object because we don't want
-  // to render the component twice (using setError and setErrorStatus)
-  // This approach can be used for linked state variables.
+
   const [error, setError] = useState({ status: 0, errorMessage: null });
 
-  // componentDidMount
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -51,7 +48,7 @@ function UserContainer(props) {
 
   function reload() {
     setIsLoaded(false);
-    setIsDeleted(false); // Reset the delete operation flag
+    setIsDeleted(false);
     toggleForm();
     fetchUsers();
   }
@@ -77,7 +74,7 @@ function UserContainer(props) {
               <UserTable
                 tableData={tableData}
                 onDelete={handleDeleteCallback}
-              /> // Step 3: Pass the callback function
+              />
             )}
             {error.status > 0 && (
               <APIResponseErrorMessage

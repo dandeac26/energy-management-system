@@ -20,9 +20,7 @@ function DeviceContainer(props) {
   const [tableData, setTableData] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  // Store error status and message in the same object because we don't want
-  // to render the component twice (using setError and setErrorStatus)
-  // This approach can be used for linked state variables.
+
   const [error, setError] = useState({ status: 0, errorMessage: null });
 
   // componentDidMount
@@ -53,7 +51,7 @@ function DeviceContainer(props) {
   }
 
   function handleDeleteCallback() {
-    setIsDeleted(true); // Step 2: Notify delete operation
+    setIsDeleted(true);
   }
 
   return (
@@ -77,7 +75,7 @@ function DeviceContainer(props) {
               <DeviceTable
                 tableData={tableData}
                 onDelete={handleDeleteCallback}
-              /> // Step 3: Pass the callback function
+              />
             )}
             {error.status > 0 && (
               <APIResponseErrorMessage

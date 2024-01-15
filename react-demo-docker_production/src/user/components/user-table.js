@@ -3,14 +3,13 @@ import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import UserForm from "./user-form";
 import Table from "../../commons/tables/table";
 import * as API_USERS from "../api/user-api";
-// import {fetchUsers(), onDelete()} from "./user/user-container";
 
 function UserTable(props) {
   const [error, setError] = useState({ status: 0, errorMessage: null });
   const [tableData, setTableData] = useState(props.tableData);
 
   const [isSelected, setIsSelected] = useState(false);
-  // const [tableData, setTableData] = useState([]);
+
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [isDeleted, setIsDeleted] = useState(false);
@@ -22,8 +21,7 @@ function UserTable(props) {
     return API_USERS.deleteUser(id, (result, status, err) => {
       if (status === 204) {
         console.log("Successfully deleted user with id: " + id);
-        // props.fetchUsers(); // Call the fetchUsers function from the props
-        // props.onDelete(); // Step 4: Notify delete operation
+
         window.location.reload();
       } else {
         setError({ status: status, errorMessage: err });
@@ -40,9 +38,8 @@ function UserTable(props) {
   }
   function reload() {
     setIsLoaded(false);
-    setIsDeleted(false); // Reset the delete operation flag
+    setIsDeleted(false);
     toggleForm();
-    // fetchUsers();
   }
 
   const columns = [
@@ -75,7 +72,6 @@ function UserTable(props) {
               toggleForm();
               handleUpdate(row.original);
             }}
-            // onClick={() => handleUpdate(row.original)}
           >
             Update
           </Button>

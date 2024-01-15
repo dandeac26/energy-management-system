@@ -34,7 +34,6 @@ class Login extends Component {
     const user = {
       username: this.state.name,
       password: this.state.password,
-      // role: this.state.role,
     };
 
     const callback = (json, status, err) => {
@@ -42,12 +41,10 @@ class Login extends Component {
         console.error("An error occurred:", err);
         let errorMessage = "An error occurred. Please try again.";
 
-        // Check if the error response is in JSON format
         try {
           const errorJson = JSON.parse(err);
           errorMessage = errorJson.message || errorMessage;
         } catch (parseError) {
-          // If it's not in JSON format, use the original error message
           errorMessage = err.toString();
         }
 
@@ -60,7 +57,6 @@ class Login extends Component {
         console.log("Received JSON:", json);
 
         if (json) {
-          // Check if 'json' is defined
           if (status === 200) {
             // Authentication successful
             console.log("success log");
@@ -82,7 +78,7 @@ class Login extends Component {
               modalMessage: "Login failed. Please try again.",
             });
           } else {
-            // Handle other status codes or scenarios
+            // Handle other status codes
             console.error("Authentication failed with status: " + json.status);
             this.setState({
               showModal: true,
@@ -103,7 +99,6 @@ class Login extends Component {
 
     try {
       const response = await API_USERS.authenticateUser(user, callback);
-      // console.log(response.json);
       // No need to check response.status here
     } catch (error) {
       console.error("An error occurred while authenticating:", error);
@@ -132,7 +127,7 @@ class Login extends Component {
 
   render() {
     const loginFormStyle = {
-      marginTop: "50px", // Add margin to the top of the login form
+      marginTop: "50px",
     };
     return (
       <Container style={loginFormStyle}>
