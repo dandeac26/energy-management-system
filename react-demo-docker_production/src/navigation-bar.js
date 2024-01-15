@@ -42,6 +42,8 @@ function NavigationBar() {
   const isAdmin =
     userData && Array.isArray(userData.roles) && userData.roles[0] === "ADMIN";
 
+  const modalRef = useRef(modal);
+
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -53,64 +55,46 @@ function NavigationBar() {
     return userData !== null;
   }
 
-  // useEffect(() => {
-  //   scrollToBottom();
-  //   isUserAuthenticated();
-  // }, [messages]);
+  function sendSeenMessages(user) {
+    console.log("ENTERED");
+    if (stompClient) {
+      console.log("the seen msg sent!");
+      const newMessage = {
+        id: uuidv4(),
+        sender: userData.username,
+        destination: user, // Admin sends to selected user, client sends to admin
+        text: "seen",
+        seen: true,
+        role: userData.roles[0],
+      };
+      stompClient.send("/app/send", {}, JSON.stringify(newMessage));
+      setCurrentMessage("");
+    }
+  }
+
   useEffect(() => {
     connect();
     scrollToBottom();
     return () => {
       disconnect();
     };
-  }, []);
+  }, [messages]);
 
-  // const handleIncomingMessage = (message) => {
-  //   const receivedMessage = JSON.parse(message.body);
-  //   // Determine whether the message is incoming or outgoing
-  //   const messageSender =
-  //     receivedMessage.sender === userData.username
-  //       ? receivedMessage.destination
-  //       : receivedMessage.sender;
+  useEffect(() => {
+    if (activeChats[selectedChat]) {
+      scrollToBottom();
+    }
+  }, [activeChats, selectedChat]);
 
-  //   setActiveChats((prevChats) => {
-  //     const updatedChats = { ...prevChats };
-  //     const chatMessages = updatedChats[messageSender] || { messages: [] };
-  //     chatMessages.messages.push(receivedMessage);
+  useEffect(() => {
+    modalRef.current = modal;
+  }, [modal]);
 
-  //     updatedChats[messageSender] = chatMessages;
-  //     return updatedChats;
-  //   });
-  // };
+  const toggleModal = () => {
+    setModal(!modal);
+    modalRef.current = !modal; // Update the ref's current value whenever modal changes
+  };
 
-  const toggleModal = () => setModal(!modal);
-
-  // const connect = () => {
-  //   // Mock connection to WebSocket
-  //   const socket = new SockJS("http://localhost:8088/websocket-endpoint");
-  //   const client = Stomp.over(socket);
-
-  //   client.connect({}, () => {
-  //     client.subscribe("/topic/messages", (message) => {
-  //       const receivedMessage = JSON.parse(message.body);
-  //       setActiveChats((prevChats) => {
-  //         const updatedChats = { ...prevChats };
-  //         const chatKey =
-  //           receivedMessage.sender === userData.username
-  //             ? receivedMessage.destination
-  //             : receivedMessage.sender;
-  //         if (!updatedChats[chatKey]) {
-  //           updatedChats[chatKey] = { messages: [] };
-  //         }
-  //         console.log("NEW MESSAGE ADDED: " + receivedMessage);
-  //         updatedChats[chatKey].messages.push(receivedMessage);
-  //         return updatedChats;
-  //       });
-  //     });
-  //   });
-
-  //   setStompClient(client);
-  // };
   const connect = () => {
     // Mock connection to WebSocket
     const socket = new SockJS("http://localhost:8088/websocket-endpoint");
@@ -119,7 +103,30 @@ function NavigationBar() {
     client.connect({}, () => {
       client.subscribe("/topic/messages", (message) => {
         const receivedMessage = JSON.parse(message.body);
-
+        console.log(
+          "username: " +
+            userData.username +
+            "\n dest: " +
+            receivedMessage.destination +
+            "\n modal: " +
+            modalRef.current +
+            "\n selectedChat: " +
+            selectedChat +
+            "\n sender: " +
+            receivedMessage.sender +
+            "\n msg: " +
+            receivedMessage.text
+        );
+        if (
+          receivedMessage.destination === userData.username &&
+          modalRef.current &&
+          (selectedChat === receivedMessage.sender ||
+            userData.roles[0] === "CLIENT") &&
+          receivedMessage.seen === false
+        ) {
+          sendSeenMessages(receivedMessage.sender);
+          console.log("ENTERED SEND");
+        }
         if (
           receivedMessage.destination === userData.username ||
           receivedMessage.sender === userData.username
@@ -141,6 +148,9 @@ function NavigationBar() {
             );
 
             if (!messageExists) {
+              if (receivedMessage.seen === true) {
+                // alert("seen");
+              }
               updatedChats[chatKey].messages.push(receivedMessage);
               console.log("NEW MESSAGE ADDED: ", receivedMessage);
             }
@@ -163,13 +173,6 @@ function NavigationBar() {
 
   const handleSendMessage = () => {
     if (currentMessage.trim() !== "" && stompClient) {
-      // const messageId =
-      //   Date.now().toString() +
-      //   "-" +
-      //   Math.random()
-      //     .toString(36)
-      //     .substr(2, 9);
-
       const newMessage = {
         id: uuidv4(),
         sender: userData.username,
@@ -241,6 +244,7 @@ function NavigationBar() {
                       onClick={() => {
                         console.log("Setting selected chat to user:", user);
                         setSelectedChat(user);
+                        sendSeenMessages(user);
                       }}
                     >
                       Chat with {user}
@@ -258,6 +262,9 @@ function NavigationBar() {
                         maxHeight: "300px",
                         overflowY: "auto",
                         height: "600px",
+                        marginBottom: "30px",
+                        paddingBottom: "10px",
+                        paddingTop: "10px",
                       }}
                     >
                       {activeChats[user].messages.map((msg, index) => (
@@ -265,26 +272,61 @@ function NavigationBar() {
                           key={index}
                           style={{
                             textAlign:
-                              msg.sender === userData.username
+                              msg.sender === userData.username ||
+                              msg.seen === true
                                 ? "right"
                                 : "left",
                           }}
                         >
-                          <span
+                          {msg.seen === false && (
+                            <span
+                              style={{
+                                backgroundColor:
+                                  msg.sender === userData.username
+                                    ? "#e0e0e0"
+                                    : "#f0f0f0",
+                                borderRadius: "10px",
+                                padding: "10px 15px",
+                                display: "inline-block",
+                                maxWidth: "80%",
+                                margin: "5px",
+                              }}
+                            >
+                              {msg.text}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                      {activeChats[user].messages.map((msg, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            textAlign: "right",
+                            display: "block",
+                          }}
+                        >
+                          <p
                             style={{
-                              backgroundColor:
-                                msg.sender === userData.username
-                                  ? "#e0e0e0"
-                                  : "#f0f0f0",
-                              borderRadius: "10px",
-                              padding: "10px 15px",
-                              display: "inline-block",
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: "1px",
+                              padding: "0px",
+                              display: "block",
                               maxWidth: "80%",
-                              margin: "5px",
+                              margin: "0px",
+                              marginRight: "30px",
+                              textAlign: "right",
+                              position: "absolute",
+                              bottom: "100px",
+                              right: "5px",
+                              color:
+                                msg.seen === true && msg.sender === user
+                                  ? "lightblue"
+                                  : "white",
                             }}
                           >
-                            {msg.text}
-                          </span>
+                            {" "}
+                            seen{" "}
+                          </p>
                         </div>
                       ))}
                       <div ref={messagesEndRef} />

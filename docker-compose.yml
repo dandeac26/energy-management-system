@@ -2,11 +2,11 @@ version: '3'
 
 services:
 
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  # rabbitmq:
+  #   image: "rabbitmq:3-management"
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
 
   frontend-react:
     build:
@@ -44,66 +44,66 @@ services:
 
     depends_on:
       - postgres-users
-      - devices-microservice
+      # - devices-microservice
 
-  postgres-devices:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: devices_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - db-data-devices:/var/lib/postgresql/data
+  # postgres-devices:
+  #   image: postgres
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: devices_db
+  #   ports:
+  #     - "5433:5432"
+  #   volumes:
+  #     - db-data-devices:/var/lib/postgresql/data
 
-  devices-microservice:
-    image: devices-microservice
-    build:
-      context: ./devices-service
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "8081:8081"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-devices:5432/devices_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    depends_on:
-      - postgres-devices
-      - rabbitmq
-      - rabbit-microservice
+  # devices-microservice:
+  #   image: devices-microservice
+  #   build:
+  #     context: ./devices-service
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-devices:5432/devices_db
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  #   depends_on:
+  #     - postgres-devices
+  #     - rabbitmq
+  #     - rabbit-microservice
 
-  rabbit-microservice:
-    image: rabbit-microservice
-    restart: always
-    build:
-      context: ./sensorTransmissions-service
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-      - "5001:5001"
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - postgres-mon
-      - rabbitmq
+  # rabbit-microservice:
+  #   image: rabbit-microservice
+  #   restart: always
+  #   build:
+  #     context: ./sensorTransmissions-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5000:5000"
+  #     - "5001:5001"
+  #   environment:
+  #     - FLASK_ENV=development
+  #   depends_on:
+  #     - postgres-mon
+  #     - rabbitmq
 
-  postgres-mon:
-    image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: monitor_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - db-data-mon:/var/lib/postgresql/data
-    depends_on:
-      - rabbitmq
+  # postgres-mon:
+  #   image: postgres:latest
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: monitor_db
+  #   ports:
+  #     - "5435:5432"
+  #   volumes:
+  #     - db-data-mon:/var/lib/postgresql/data
+  #   depends_on:
+  #     - rabbitmq
 
 
   postgres-chat:
@@ -135,8 +135,8 @@ services:
       - postgres-chat
 
 volumes:
-  db-data-devices:
+  # db-data-devices:
   db-data-users:
-  db-data-mon:
+  # db-data-mon:
   chat-data:
 
