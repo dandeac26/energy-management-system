@@ -49,7 +49,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
 
   const userData = JSON.parse(userDataString);
   const userRoles = Array.isArray(userData.roles) ? userData.roles : [];
-  console.log(userRoles); // This will log something like ['ADMIN']
+  console.log(userRoles);
 
   if (requiredRole && !userRoles.includes(requiredRole)) {
     return <Navigate to="/error" replace />;

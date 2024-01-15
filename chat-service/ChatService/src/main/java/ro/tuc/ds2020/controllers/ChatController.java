@@ -12,7 +12,7 @@ import ro.tuc.ds2020.services.ChatService;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping(value = "/chat")
 public class ChatController {
 
