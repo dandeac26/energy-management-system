@@ -38,7 +38,6 @@ public class ChatController {
     public Message receiveMessage(Message message) {
         System.out.println("RECEIVED MESSAGE: " + message + "\n");
         chatService.saveMessage(message);
-        // You can add logic here to process the message if needed
         return message;
     }
 
