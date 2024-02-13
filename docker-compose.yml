@@ -1,21 +1,20 @@
-version: '3'
+version: "3"
 
 services:
-
   rabbitmq:
     image: "rabbitmq:3-management"
     ports:
       - "5672:5672"
       - "15672:15672"
 
-  frontend-react:
-    build:
-      context: ./react-demo-docker_production
-      dockerfile: Dockerfile
-    ports:
-       - "3003:3000"
-    depends_on:
-      - users-service
+  # frontend-react:
+  #   build:
+  #     context: ./react-demo-docker_production
+  #     dockerfile: Dockerfile
+  #   ports:
+  #      - "3003:3000"
+  #   depends_on:
+  #     - users-service
 
   postgres-users:
     image: postgres
@@ -105,7 +104,6 @@ services:
     depends_on:
       - rabbitmq
 
-
   postgres-chat:
     image: postgres:latest
     restart: always
@@ -139,4 +137,3 @@ volumes:
   db-data-users:
   db-data-mon:
   chat-data:
-
