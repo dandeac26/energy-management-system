@@ -1,5 +1,7 @@
 This is an energy management system developed during the distributed system course.
 
+![image](https://github.com/dandeac26/energy-management-system-ds/assets/79625820/87b79173-dd2c-4afa-b628-9106129b11d0)
+
 
 #Remove any previous containers or images - use 'sudo" if on linux! if not remove "sudo" and all appearances!
 sudo docker ps -q | xargs -r sudo docker rm -f && sudo docker image ls -q | xargs -r sudo docker rmi -f
