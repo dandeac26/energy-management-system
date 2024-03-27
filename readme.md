@@ -1,6 +1,9 @@
 This is an energy management system developed during the distributed system course.
 
-![image](https://github.com/dandeac26/energy-management-system-ds/assets/79625820/87b79173-dd2c-4afa-b628-9106129b11d0)
+# Deployment Diagram 
+![image](https://github.com/dandeac26/energy-management-system-ds/assets/79625820/32e446af-df4c-4bb9-a5cb-3e5e17cec307)
+
+
 
 # Helpful commands
 Remove any previous containers or images - use 'sudo" if on linux! if not remove "sudo" and all appearances!<br>
@@ -25,3 +28,6 @@ First of all, we need docker run rabbitmq queue service, with this command :<br>
 
 Then we can run the transmitter.py file:<br>
 `python3 transmitter.py`
+
+# Architecture
+![image](https://github.com/dandeac26/energy-management-system-ds/assets/79625820/87b79173-dd2c-4afa-b628-9106129b11d0)
